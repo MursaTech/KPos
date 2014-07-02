@@ -30,7 +30,7 @@ public class SalesStatsPanel extends JFrame {
     List<String> itemColumns = new LinkedList<String>();
     MursalDB db = new MursalDB();
     
-    void createSalesStatsOverviewPanel() {
+    public JPanel createSalesStatsOverviewPanel() {
     	
         statsPanel = new JPanel();
         jPanel3 = new JPanel();
@@ -45,6 +45,28 @@ public class SalesStatsPanel extends JFrame {
         salesOverviewPanel = new JPanel();
         lblOverview = new JLabel();
         lblSummary = new JLabel();
+        
+        lblSummary.setText("<html><body><table width=\"930\" height=100% border=\"0\">"+
+				"<tr valign=\"top\">"+
+				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
+				"<b>Total Sales</b>" +
+				"<td style=\"background-color:#eeeeee;height:90px;width:500px;text-align:top;\">"+
+				"<ul><li>Today - <b> Kshs. db.salesTotal</b></li><li>Yesterday -<b> Kshs. db.yesterdaySalesTotal"+
+				"</b></li><li>This week -<b> Kshs. db.weekSalesTotal</b></li>" +
+						"<li>This month -<b> Kshs. db.monthSalesTotal</b></li>" +
+						"<li>This Year -<b> Kshs. db.yearSalesTotal</b></li><li>From the begining of time -<b> Kshs. " +
+						"db.grandSalesTotal</b></li></ul></td></tr>" +
+				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
+				"<b>Items Sold</b>" +
+				"<td style=\"background-color:#eeeeee;height:90px;width:500px;text-align:top;\">"+
+				"<ul><li>Most Popular -<b> db.top1, db.top2, db.top3</b></li><li>Least Popular --<b> db.bottom1, db.bottom2, "+
+				"db.bottom3</b></li><li>Most Valuable -<b> db.mostValuable1, db.mostValuable2, db.mostValuable3</b></li>" +
+						"<li>Least Valuable -<b> db.leastValuable1, db.leastValuable2, db.leastValuable3</b></li></ul></td></tr>"+
+				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
+				"<b>Time</b>" +
+				"<td style=\"background-color:#eeeeee;height:100px;width:500px;text-align:top;\">"+
+				"<ul><li>Peak times -</li><li>Down Times -</li><li>Busiest days -</li><li>Least Busy Days -</li></ul></td></tr>"+
+				"</table></body></html>");
         
         ts.createTransactionPanel();
         items.createItemsPanel();
@@ -240,6 +262,7 @@ public class SalesStatsPanel extends JFrame {
         );
 
         pack();
+		return statsPanel;
     }
     
     String user, pass;

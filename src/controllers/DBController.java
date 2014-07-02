@@ -125,7 +125,7 @@ public class DBController {
 			while (rst.next()) {
 				record = new TreeMap<String, String>();
 				for (int j = 2; j <= rmd.getColumnCount(); j++) {
-					record.put(n + rmd.getColumnName(j), rst.getString(j));
+					record.put(rmd.getColumnName(j), rst.getString(j));
 					n++;
 				}
 				all.add(record);

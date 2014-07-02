@@ -39,7 +39,7 @@ public class StatsPanel extends JFrame {
     JButton xpenseButton;
     List<String> columns = new LinkedList<String>();
     
-    public void createStatsPanel() {
+    public JPanel createStatsPanel() {
 
         statsPanel = new JPanel();
         buttonContainer = new JPanel();
@@ -247,6 +247,7 @@ public class StatsPanel extends JFrame {
                 .add(statsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
+		return statsPanel;
 
         //pack();
     }

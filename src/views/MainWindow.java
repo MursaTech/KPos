@@ -1,7 +1,17 @@
 package views;
 
+import helpers.DBHelpers;
+import helpers.ViewHelpers;
+
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 
 import controllers.ClientController;
 
@@ -41,7 +51,7 @@ public class MainWindow extends javax.swing.JFrame {
         logoLabel = new javax.swing.JLabel();
         contentPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        cardPanel = new javax.swing.JPanel();
         notificationsPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         notificationsList = new javax.swing.JList();
@@ -62,14 +72,35 @@ public class MainWindow extends javax.swing.JFrame {
         salesButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\sale.PNG")); // NOI18N
         salesButton.setText("jButton1");
         salesButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 1, true));
+        salesButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.switchToSales();
+			}
+		});
 
         expensesButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\expenses.PNG")); // NOI18N
         expensesButton.setText("jButton1");
         expensesButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 1, true));
+        expensesButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.switchToExpenses();
+			}
+		});
 
         statsButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\stats.PNG")); // NOI18N
         statsButton.setText("jButton1");
         statsButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 1, true));
+        statsButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.switchToStats();
+			}
+		});
 
         inventoryButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\inventory.PNG")); // NOI18N
         inventoryButton.setText("jButton1");
@@ -92,7 +123,7 @@ public class MainWindow extends javax.swing.JFrame {
         txtSearch.setBorder(null);
 
         userNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        userNameLabel.setText("Hi, Muaad");
+        userNameLabel.setText("Hi, " + controller.sessionMap.get("user_type"));
 
         logoLabel.setBackground(new java.awt.Color(255, 51, 51));
 
@@ -163,26 +194,33 @@ public class MainWindow extends javax.swing.JFrame {
 
         jLabel2.setText("<html><body><b>Copyright Muaad Abdirahman 2014. For support, call 0722778438.</b></body></html>");
 
-        jPanel2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 1, true));
+        cardPanel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 1, true));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 922, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 491, Short.MAX_VALUE)
-        );
+//        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(cardPanel);
+        cardPanel.setLayout(new CardLayout());
+//        jPanel2Layout.setHorizontalGroup(
+//            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//            .addGap(0, 922, Short.MAX_VALUE)
+//        );
+//        jPanel2Layout.setVerticalGroup(
+//            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//            .addGap(0, 491, Short.MAX_VALUE)
+//        );
+        SalesPanel sp = new SalesPanel(controller);
+        ExpensesPanel xp = new ExpensesPanel();
+        SalesStatsPanel stPanel = new SalesStatsPanel();
+        InventoryManagement im = new InventoryManagement();
+        cardPanel.add(sp.createSalesPanel(),"sales");
+        cardPanel.add(xp.createExpensePanel(),"expense");
+//        cardPanel.add(calc.cp, "calc");
+        cardPanel.add(stPanel.createSalesStatsOverviewPanel(), "stats");
+//        cardPanel.add(ssPanel.statsPanel, "salesStats");
+//        cardPanel.add(vPanel.viewTablesPanel, "view");
+//        cardPanel.add(setUp.setUpPanel, "setup");
+        cardPanel.add(im.createInventoryPanel(), "stock");
 
         notificationsPanel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 1, true));
 
-        notificationsList.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
         notificationsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 notificationsListValueChanged(evt);
@@ -218,7 +256,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(contentPanelLayout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cardPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(notificationsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -228,7 +266,7 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, contentPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(contentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(notificationsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -274,54 +312,28 @@ public class MainWindow extends javax.swing.JFrame {
         );
 
         pack();
-    }// </editor-fold>                        
+    }
 
+    public void populateList(List<String> activities) {
+		notificationsList.removeAll();
+		notificationsList.setModel(new DefaultListModel<String>());
+		String[] notifications = new String[activities.size()];
+		for (int i = 0; i < activities.size(); i++) {
+			notifications[i] = activities.get(i);
+		}
+		notificationsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		notificationsList.setListData(notifications);
+	}
+    
     private void inventoryButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                
-        // TODO add your handling code here:
+        controller.switchToStock();
     }                                               
 
-    private void notificationsListValueChanged(javax.swing.event.ListSelectionEvent evt) {                                               
-        // TODO add your handling code here:
-        JOptionPane.showMessageDialog(null, evt.getFirstIndex());
+    private void notificationsListValueChanged(javax.swing.event.ListSelectionEvent evt) {
+    	controller.switchToExpenses();
+//    	JOptionPane.showMessageDialog(cardPanel, "Admin");
     }                                              
-
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                MainWindow m = new MainWindow();
-//                m.setVisible(true);
-//                m.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//            }
-//        });
-//    }
-    // Variables declaration - do not modify                     
+                 
     private javax.swing.JPanel contentPanel;
     private javax.swing.JButton expensesButton;
     private javax.swing.JButton inventoryButton;
@@ -330,18 +342,18 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    public javax.swing.JPanel cardPanel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel logoLabel;
     private javax.swing.JPanel logoPanel;
-    private javax.swing.JList notificationsList;
+    public javax.swing.JList notificationsList;
     private javax.swing.JPanel notificationsPanel;
     private javax.swing.JButton salesButton;
     private javax.swing.JButton settingsButton;
     private javax.swing.JButton statsButton;
     private javax.swing.JPanel toolsPanel;
     private javax.swing.JTextField txtSearch;
-    private javax.swing.JLabel userNameLabel;
+    public javax.swing.JLabel userNameLabel;
     private ClientController controller;
     // End of variables declaration                   
 }

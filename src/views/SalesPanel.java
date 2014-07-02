@@ -45,6 +45,8 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
+import controllers.ClientController;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -55,9 +57,13 @@ import javax.swing.table.DefaultTableModel;
  * @author Muaad
  */
 public class SalesPanel extends javax.swing.JFrame {
+	
+	public SalesPanel(ClientController controller) {
+		this.controller = controller;
+	}
 
-	JPanel SalesPanel;
-	JButton buttonAdd;
+	JPanel salesPanel;
+	public JButton buttonAdd;
 	JButton buttonSave;
 	JComboBox comboName;
 	JComboBox comboQuantity;
@@ -82,9 +88,10 @@ public class SalesPanel extends javax.swing.JFrame {
 	List<String> products = new ArrayList<String>();
 	MursalDB db = new MursalDB();
 	String user = null, pass = null;
+	ClientController controller;
 
-	public void createSalesPanel() {
-		SalesPanel = new JPanel();
+	public JPanel createSalesPanel() {
+		salesPanel = new JPanel();
 		jPanel3 = new JPanel();
 		lblName = new JLabel();
 		comboName = new JComboBox();
@@ -125,7 +132,7 @@ public class SalesPanel extends javax.swing.JFrame {
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-		SalesPanel.setBackground(new java.awt.Color(153, 204, 255));
+		salesPanel.setBackground(new java.awt.Color(153, 204, 255));
 
 		jPanel3.setBackground(new java.awt.Color(0, 51, 102));
 		jPanel3.setBorder(new LineBorder(new java.awt.Color(153, 153, 255), 1,
@@ -246,6 +253,9 @@ public class SalesPanel extends javax.swing.JFrame {
 				true));
 		lblName.setFocusable(false);
 		lblName.setOpaque(true);
+//		if (controller.isAdmin()) {
+//			comboName.setEditable(false);
+//		}
 
 		comboName.setBackground(new java.awt.Color(153, 153, 255));
 		comboName.setEditable(true);
@@ -583,8 +593,8 @@ public class SalesPanel extends javax.swing.JFrame {
 						.addContainerGap(GroupLayout.DEFAULT_SIZE,
 								Short.MAX_VALUE)));
 
-		GroupLayout SalesPanelLayout = new GroupLayout(SalesPanel);
-		SalesPanel.setLayout(SalesPanelLayout);
+		GroupLayout SalesPanelLayout = new GroupLayout(salesPanel);
+		salesPanel.setLayout(SalesPanelLayout);
 		SalesPanelLayout
 				.setHorizontalGroup(SalesPanelLayout
 						.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -622,6 +632,7 @@ public class SalesPanel extends javax.swing.JFrame {
 								GroupLayout.PREFERRED_SIZE)
 						.addContainerGap(GroupLayout.DEFAULT_SIZE,
 								Short.MAX_VALUE)));
+		return salesPanel;
 	}
 	
 	private void containsIgnoreCase(String s, String a, List<String> l) {

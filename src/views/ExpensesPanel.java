@@ -71,7 +71,7 @@ public class ExpensesPanel {
 		 
 		 EventHandler eHandler = new EventHandler();
 		 
-	public void createExpensePanel() {
+	public JPanel createExpensePanel() {
     	expensePanel = new JPanel();
         panelXp1 = new JPanel();
         lblXpensePaid = new JLabel();
@@ -325,6 +325,7 @@ public class ExpensesPanel {
                 .addComponent(panelXp2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+		return expensePanel;
     }
 	
 	class PopupListener extends MouseAdapter {

@@ -111,5 +111,6 @@ public class DBHelpers {
 //		System.out.println(User.findBy("user_name", "muaad").get(0).get("password"));
 		
 //		User.deleteAll();
+		System.out.println(User.showAll());
 	}
 }

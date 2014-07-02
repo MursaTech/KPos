@@ -43,7 +43,7 @@ public class InventoryManagement extends JFrame {
         createInventoryPanel();
     }
     
-    void createInventoryPanel() {
+    public JPanel createInventoryPanel() {
 
         inventoryPanel = new JPanel();
         addPanel = new JPanel();
@@ -273,6 +273,7 @@ public class InventoryManagement extends JFrame {
         );
 
         pack();
+		return inventoryPanel;
     }
     
     public static void main(String args[]) {

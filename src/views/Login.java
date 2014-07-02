@@ -7,6 +7,8 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
+import workers.SalesNotifier;
+
 import models.Session;
 import models.User;
 
@@ -73,6 +75,9 @@ public class Login extends javax.swing.JFrame {
 					Session.create(new TreeMap<>(controller.sessionMap));
 					controller.sessionMap.put("user_type", User.findBy("user_name", userTxt.getText()).get(0).get("type"));
 					controller.displayMainScreen();
+					controller.destroyLoginScreen();
+//					SalesNotifier notifier = new SalesNotifier(controller);
+					new Thread (controller, "").start();
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Username and password don't match!");
@@ -301,7 +306,7 @@ public class Login extends javax.swing.JFrame {
    private javax.swing.JLabel logoLabel;
    private javax.swing.JPanel logoPanel;
    private javax.swing.JLabel noAccountLabel;
-   private javax.swing.JLabel passLabel;
+   public javax.swing.JLabel passLabel;
    private JPasswordField passTxt;
    private javax.swing.JButton signUpButton;
    private javax.swing.JLabel userLabel;

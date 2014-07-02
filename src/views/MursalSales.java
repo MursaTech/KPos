@@ -622,7 +622,7 @@ public class MursalSales {
         ssPanel.comboAction.addActionListener(eHandler);
         vPanel.listOfTables.addListSelectionListener(listSelection);
 		contentPanel.add(homePanel, "home");
-        contentPanel.add(sp.SalesPanel,"sales");
+        contentPanel.add(sp.salesPanel,"sales");
         contentPanel.add(xp.expensePanel,"xpense");
         contentPanel.add(calc.cp, "calc");
         contentPanel.add(stPanel.statsPanel, "stats");

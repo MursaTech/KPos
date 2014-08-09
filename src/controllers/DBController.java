@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.atteo.evo.inflector.English;
+
 import models.*;
 
 public class DBController {
@@ -19,6 +21,10 @@ public class DBController {
 	ResultSetMetaData rmd = null;
 	private DBHelpers helper = new DBHelpers();
 	boolean connected = false;
+	
+//	public String regex = "([a-z])([A-Z])";
+//	public String replacement = "$1_$2";
+//	public String className = English.plural(this.getClass().getSimpleName().replaceAll(regex, replacement).toLowerCase(), 2);
 	
 	public Connection connect() {
 		Connection c = null;
@@ -79,11 +85,31 @@ public class DBController {
 		Payroll.migrate();
 		Session.migrate();
 		Business.migrate();
+		Customer.migrate();
+		CustomerTransaction.migrate();
+	}
+
+	public static void resetDB() {
+		Category.deleteAll();
+		Expense.deleteAll();
+		ExpenseTransaction.deleteAll();
+		Sale.deleteAll();
+		SalesTransaction.deleteAll();
+		SubCategory.deleteAll();
+		Stock.deleteAll();
+		StockReserve.deleteAll();
+		User.deleteAll();
+		Payroll.deleteAll();
+		Session.deleteAll();
+		Business.deleteAll();
+		Customer.deleteAll();
+		CustomerTransaction.migrate();
 	}
 	
 	public boolean setUp() {
 		boolean setUp = false;
-		String [] tables = {"businesses", "categories", "expense_transactions", "expenses", "payrolls", "sales", "sales_transactions", "sessions",
+		String [] tables = {"businesses", "categories", "customer_transactions", "customers",
+				"expense_transactions", "expenses", "payrolls", "sales", "sales_transactions", "sessions",
 				"stock_reserves", "stocks", "sub_categories", "users" };
 		List<String> tbls = Arrays.asList(tables);
 		Collections.sort(tbls);
@@ -93,8 +119,7 @@ public class DBController {
 				rst = connect().createStatement().executeQuery("show tables");
 				int i = 0;
 				while (rst.next()) {
-					setUp = tbls.get(i).trim()
-							.equalsIgnoreCase(rst.getString(1).trim());
+					setUp = tbls.get(i).trim().equalsIgnoreCase(rst.getString(1).trim());
 					i++;
 				}
 			} catch (SQLException e) {
@@ -201,7 +226,7 @@ public class DBController {
 				n++;
 			}
 			psmt.executeUpdate();
-		} catch (SQLException e1) {}
+		} catch (SQLException e1) {e1.printStackTrace();}
 		return true;
 	}
 
@@ -209,6 +234,15 @@ public class DBController {
 		try {
 			psmt = connect().prepareStatement("delete from " + table + " where id = ?");
 			psmt.setString(1, id);
+			psmt.executeUpdate();
+		} catch (SQLException e) {}
+		return false;
+	}
+
+	public boolean deleteWhere(String table, String field, String value) {
+		try {
+			psmt = connect().prepareStatement("delete from " + table + " where " + field + "= ?");
+			psmt.setString(1, value);
 			psmt.executeUpdate();
 		} catch (SQLException e) {}
 		return false;
@@ -242,6 +276,16 @@ public class DBController {
 	}
 	
 	public void createTable() {
+	}
+	
+	public void addColumn(String table, String column, String type, String after) {
+		String query = "ALTER TABLE " + table + " ADD COLUMN " + column + " " + type + " AFTER " + after;
+		try {
+			connect().createStatement().executeUpdate(query);
+		} catch (SQLException e) {
+//			e.printStackTrace();
+		}
+//		System.out.println(query);
 	}
 	
 }

@@ -14,8 +14,11 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 
+import models.Sale;
+import models.SalesTransaction;
 import models.Session;
 import models.Stock;
+import models.User;
 
 import views.*;
 
@@ -26,12 +29,14 @@ public class ClientController implements Runnable {
 	private SetUp setUpScreen;
 	private static DBController db;
 	private MainWindow mainWindow;
-	public Map<String, String> sessionMap = new HashMap<String, String>();
+	private PostPaidDialog postPaid;
+	public Map<String, String> currentUser = new HashMap<String, String>();
 
 	public ClientController(DBController db) {
 		initMainScreen();
-		this.db = db;
-		if(db.setUp()) {
+//		displayMainScreen();
+//		this.db = db;
+		if(db.setUp() && User.count() > 0) {
 			initLoginScreen();
 			displayLoginScreen();
 //			new Thread (this, "").start();
@@ -40,6 +45,7 @@ public class ClientController implements Runnable {
 			initSetUpScreen();
 			displaySetUpScreen();
 		}
+//		initPostPaidDialog();
 //		SalesPanel sp = new SalesPanel(this);
 //		if (Session.where("user_id", "1").get(0).get("Logged_in").equals("YES")) {
 //			sp.buttonAdd.setEnabled(false);
@@ -111,8 +117,8 @@ public class ClientController implements Runnable {
 
         /* Create and display the form */
 		mainWindow = new MainWindow(this);
-		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		mainWindow.setResizable(false);
+//		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		mainWindow.setResizable(true);
 	}
 
 	public void hideMainScreen() {
@@ -125,6 +131,14 @@ public class ClientController implements Runnable {
 
 	private void initLoginScreen() {
 		loginScreen = new Login(this);
+	}
+	
+	private void initPostPaidDialog() {
+		postPaid = new PostPaidDialog(this);
+	}
+
+	public void displayPostPaidDialog() {
+		postPaid.createGUI();
 	}
 	
 	public void switchToSales() {
@@ -148,7 +162,27 @@ public class ClientController implements Runnable {
 	}
 	
 	public boolean isAdmin() {
-		return sessionMap.get("user_type").equalsIgnoreCase("Admin");
+		return currentUser.get("user_type").equalsIgnoreCase("Admin");
+	}
+	
+	public List<String> products() {
+		List<String> products = new ArrayList<String>();
+		for(TreeMap<String, String> product : Stock.showAll()) {
+			products.add(product.get("name"));
+		}
+		return products;
+	}
+
+	public List<String> unapprovedSales() {
+		List<String> unapprovedSales = new ArrayList<String>();
+		for(Map<String, String> sale : SalesTransaction.where("approved", "NO")) {
+			String sales = "";
+			for(Map<String, String> ss : SalesTransaction.sales(sale.get("id"))) {
+				sales += Stock.find(ss.get("stock_id")).get("name") + "(" + ss.get("quantity") + ")" + " - ";
+			}
+			unapprovedSales.add("#" + sale.get("id") + " - " + sales);
+		}
+		return unapprovedSales;
 	}
 
 	@Override
@@ -156,11 +190,14 @@ public class ClientController implements Runnable {
 //		Login l = new Login(this);
 		List<String> activities = new ArrayList<String>();
 		try {
-			for (int i = 0; i < 10; i++) {
-	        	 String stock = Stock.showAll().get(i).get("name");
-	        	 activities.add(stock);
+			for (; ; ) {
+//	        	 String stock = Stock.showAll().get(i).get("name");
+//	        	 activities.add(stock);
 //	            setPassLbl(i);
-	        	 populateList(activities);
+	        	 if (currentUser.get("user_type").equalsIgnoreCase("admin")) {
+	        		 populateList(unapprovedSales());
+				 }
+//	        	 populateList(unapprovedSales());
 	            Thread.sleep(960);
 	         }
 	     } catch (InterruptedException e) {
@@ -177,6 +214,7 @@ public class ClientController implements Runnable {
 	public static void main(String[] args) {
 		db = new DBController();
 		new ClientController(db);
+		
 	}
 	
 }

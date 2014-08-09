@@ -11,6 +11,10 @@ public class Business {
 	public static Map<String, String> find(String id) {
 		return controller.show("businesses", id);		
 	}
+
+	public static List<Map<String, String>> findBy(String field, String value) {
+		return where(field + " = '" + value + "'");		
+	}
 	
 	public static List<Map<String, String>> where(String field, String value) {
 		return controller.conditionalSelect("businesses", field, value);		

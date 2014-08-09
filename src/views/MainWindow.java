@@ -123,7 +123,7 @@ public class MainWindow extends javax.swing.JFrame {
         txtSearch.setBorder(null);
 
         userNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        userNameLabel.setText("Hi, " + controller.sessionMap.get("user_type"));
+        userNameLabel.setText("Hi, " + controller.currentUser.get("user_type"));
 
         logoLabel.setBackground(new java.awt.Color(255, 51, 51));
 

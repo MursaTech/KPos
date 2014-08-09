@@ -1,5 +1,6 @@
 package models;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -97,10 +98,26 @@ public class SalesTransaction {
 		return controller.recordExists("sales_transactions", id, value);
 	}
 	
+	public static int count() {
+		return showAll().size();
+	}
+	
+	public static Map<String, String> last() {
+		Map<String, String> last = new HashMap<String, String>();
+		if (count() > 0) {
+			last = find(String.valueOf(count()));
+		}
+		return last;
+	}
+	
+	public static void addColumn(String column, String type, String after) {
+		controller.addColumn("sales_transactions", column, type, after);
+	}
+	
 	// Associations
 	
 	public static List<Map<String, String>> sales(String salesTransactionId) {
-		return Sale.where("sale_transaction_id", salesTransactionId);		
+		return Sale.where("sales_transaction_id", salesTransactionId);		
 	}
 	
 	public static Map<String, String> user(String user_id) {

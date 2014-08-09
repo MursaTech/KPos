@@ -1,6 +1,12 @@
 package helpers;
 
 import java.awt.CardLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.util.*;
 
 import javax.swing.JPanel;
@@ -62,6 +68,33 @@ public class ViewHelpers {
 //		System.out.println(card);
 	}
 	
+//	public static void printPanel(JPanel panel) {
+//		PrinterJob job = PrinterJob.getPrinterJob();
+//		job.setJobName("invoice panel");
+//		
+//		job.setPrintable(new Printable() {
+//			@Override
+//			public int print(Graphics g, PageFormat pf, int pageNum) {
+//				if(pageNum > 0) {
+//					return Printable.NO_SUCH_PAGE;
+//				}
+//				
+//				Graphics2D g2 = (Graphics2D)g;
+//				g2.translate(pf.getImageableX(), pf.getImageableY());
+//				panel.paint(g2);
+//				return Printable.PAGE_EXISTS;
+//			}
+//		});
+//		
+//		boolean ok = job.printDialog();
+//		if(ok) {
+//			try {
+//				job.print();
+//			} catch (PrinterException e2) {
+//				// TODO: handle exception
+//			}
+//		}
+//	}
 	
 	public static void main(String[] args) {
 //		int [] a = {1,2,3,4,5,6,7,8,9,10};

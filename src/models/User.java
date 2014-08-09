@@ -94,6 +94,10 @@ public class User {
 		return controller.recordExists("users", id, value);
 	}
 	
+	public static int count() {
+		return showAll().size();
+	}
+	
 	// Associations
 	
 	public static List<Map<String, String>> expenseTransactions(String id) {

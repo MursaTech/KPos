@@ -57,6 +57,10 @@ public class Stock {
 	public static Map<String, String> find(String id) {
 		return controller.show("stocks", id);		
 	}
+
+	public static Map<String, String> findBy(String field, String value) {
+		return where(field + " = '" + value + "'").get(0);		
+	}
 	
 	public static List<Map<String, String>> where(String field, String value) {
 		return controller.conditionalSelect("stocks", field, value);		

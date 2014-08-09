@@ -3,6 +3,8 @@ package helpers;
 import java.sql.*;
 import java.util.*;
 
+import org.atteo.evo.inflector.English;
+
 import models.*;
 
 import controllers.*;
@@ -111,6 +113,43 @@ public class DBHelpers {
 //		System.out.println(User.findBy("user_name", "muaad").get(0).get("password"));
 		
 //		User.deleteAll();
-		System.out.println(User.showAll());
+//		System.out.println(User.showAll());
+//		SalesTransaction.migrate();
+//		System.out.println(SalesTransaction.last());
+//		Sale.delete("sales_transaction_id", "1");
+//		System.out.println(Sale.where("sales_transaction_id", "10"));
+//		Customer.migrate();
+//		CustomerTransaction.migrate();
+//		System.out.println(Customer.totalOwing("13252"));
+//		Sale.addColumn("approved", "varchar(45)", "updated_at");
+//		SalesTransaction.addColumn("approved", "varchar(45)", "updated_at");
+//		2, 6, 5, 50, 250, , '2014-07-03 19:03:03', '', id, stock, quant, price
+//		params = new HashMap<String, String>();
+//		params.put("id", "146");
+//		params.put("stock_id", "6");
+//		params.put("quantity", "5");
+//		params.put("price", "250");
+//		System.out.println(Sale.findOrCreateBy("id", params, true));
+//		List<String> unapprovedSales = new ArrayList<String>();
+//		String sales = "";
+//		for(Map<String, String> sale : SalesTransaction.where("approved", "NO")) {
+//			for(Map<String, String> ss : SalesTransaction.sales(sale.get("id"))) {
+//				System.out.println(ss);
+//				sales += Stock.find(ss.get("stock_id")).get("name") + "(" + ss.get("quantity") + ")" + " - ";
+//			}
+//			unapprovedSales.add("#" + sale.get("id") + " - " + sales);
+//		}
+//		System.out.println(SalesTransaction.sales("50"));
+//		controller.resetDB();
+//		System.out.println(h.getClass().getSimpleName().toLowerCase());
+//		String regex = "([a-z])([A-Z])";
+//        String replacement = "$1_$2";
+//        System.out.println("StockReserve".replaceAll(regex, replacement).toLowerCase());
+//        System.out.println(English.plural("word", 1)); // == "word"
+//        System.out.println(English.plural("Stock", 2)); // == "words"
+//        String className = English.plural(h.getClass().getSimpleName().replaceAll(regex, replacement).toLowerCase(), 2);
+//        System.out.println(className);
+//		UsersController u = new UsersController();
+//		System.out.println(u.className);
 	}
 }

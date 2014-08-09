@@ -69,11 +69,11 @@ public class Login extends javax.swing.JFrame {
 			System.out.println(userTxt.getText());
 			if(User.exists("user_name", userTxt.getText())) {
 				if(new String(passTxt.getPassword()).equalsIgnoreCase(User.findBy("user_name", userTxt.getText()).get(0).get("password"))) {
-					controller.sessionMap.put("user_id", User.findBy("user_name", userTxt.getText()).get(0).get("id"));
-					controller.sessionMap.put("client", userTxt.getText());
-					controller.sessionMap.put("logged_in", "YES");
-					Session.create(new TreeMap<>(controller.sessionMap));
-					controller.sessionMap.put("user_type", User.findBy("user_name", userTxt.getText()).get(0).get("type"));
+					controller.currentUser.put("user_id", User.findBy("user_name", userTxt.getText()).get(0).get("id"));
+					controller.currentUser.put("client", userTxt.getText());
+					controller.currentUser.put("logged_in", "YES");
+					Session.create(new TreeMap<>(controller.currentUser));
+					controller.currentUser.put("user_type", User.findBy("user_name", userTxt.getText()).get(0).get("type"));
 					controller.displayMainScreen();
 					controller.destroyLoginScreen();
 //					SalesNotifier notifier = new SalesNotifier(controller);

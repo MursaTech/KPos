@@ -56,6 +56,10 @@ public class Sale {
 	public static Map<String, String> find(String id) {
 		return controller.show("sales", id);		
 	}
+
+	public static Map<String, String> findBy(String field, String value) {
+		return where(field + " = '" + value + "'").get(0);		
+	}
 	
 	public static List<Map<String, String>> where(String field, String value) {
 		return controller.conditionalSelect("sales", field, value);		
@@ -86,6 +90,11 @@ public class Sale {
 		return false;		
 	}
 
+	public static boolean delete(String field, String value) {
+		controller.deleteWhere("sales", field, value);
+		return false;		
+	}
+
 	public static boolean deleteAll() {
 		controller.truncate("sales");
 		return false;		
@@ -94,7 +103,27 @@ public class Sale {
 	public static boolean exists(String id, String value) {
 		return controller.recordExists("sales", id, value);
 	}
-
+	
+	public static void addColumn(String column, String type, String after) {
+		controller.addColumn("sales", column, type, after);
+	}
+	
+	public static Map<String, String> findOrCreateBy(String column, Map<String, String> params, boolean update) {
+		Map<String, String> record = new TreeMap<String, String>();
+		Map<String, String> conditions = new TreeMap<String, String>();
+		conditions.put(column, params.get(column));
+		if (exists(column, params.get(column))) {
+			if (update) {
+				update(params, conditions);
+			}
+			record = findBy(column, params.get(column));
+		}
+		else {
+			record = create(new TreeMap<String, String>(params));
+		}
+		return record;
+	}
+	
 	// Associations
 	
 	public static Map<String, String> salesTransaction(String id) {

@@ -196,7 +196,7 @@ public class SalesPanel extends javax.swing.JFrame {
 				for (int i = 0; i < numbers.length; i++) {
 					if(e.getKeyChar() == numbers[i]) {
 						paid.append(e.getKeyChar());
-						lblShowBalance.setText(Integer.parseInt(paid.toString()) - Integer.parseInt(lblShowTotal.getText())+"");
+						lblShowBalance.setText(Integer.parseInt(paid.toString()) - Double.parseDouble(lblShowTotal.getText())+"");
 					}
 					
 					/*for (int j = 0; j < notAllowed.length; j++) {
@@ -808,7 +808,7 @@ public class SalesPanel extends javax.swing.JFrame {
 					record.put("total_amount", String.valueOf(total));
 					record.put("sales_transaction_id", salesTransactionId);
 					record.put("VAT", vat + "");
-					if (controller.currentUser.get("user_type").equalsIgnoreCase("admin")) {
+					if (controller.isAdmin()) {
 						record.put("approved", "YES");
 					}
 					else {
@@ -832,7 +832,7 @@ public class SalesPanel extends javax.swing.JFrame {
 					tblItems.setBackground(new Color(153, 204, 255));
 					//tblItems.setBorder(new LineBorder(new Color(153, 153, 255),3, true));
 					tblItems.setFont(new Font("Tahoma", 0, 14));
-					int grandTotal = 0;
+					double grandTotal = 0;
 					for (int i = 0; i < tblModel.getRowCount(); i++) {
 						grandTotal += Double.parseDouble(tblModel.getValueAt(i, 6).toString());
 
@@ -900,7 +900,7 @@ public class SalesPanel extends javax.swing.JFrame {
 					}
 					tblModel.setValueAt(newTotal + Double.parseDouble(tblModel.getValueAt(row, 5).toString()), row, 6);
 					editRow(row, tblModel);
-					int grandTotal = 0;
+					double grandTotal = 0;
 					try {
 						for (int i = 0; i < tblModel.getRowCount(); i++) {
 							grandTotal += Double.parseDouble(tblModel.getValueAt(i,6).toString());							
@@ -1039,12 +1039,12 @@ public class SalesPanel extends javax.swing.JFrame {
 					record.put("VAT", String.valueOf(vat));
 //					sale.put("payment_id", String.valueOf(grandTotal));
 					record.put("user_id", controller.currentUser.get("user_id"));
-					if (controller.currentUser.get("user_type").equalsIgnoreCase("admin")) {
+					if (controller.isAdmin()) {
 						record.put("approved", "YES");
 					}
 					else {
 						record.put("approved", "NO");
-						new Thread (controller, "").start();
+//						new Thread (controller, "").start();
 					}
 					SalesTransaction.create(record);
 					
@@ -1065,7 +1065,7 @@ public class SalesPanel extends javax.swing.JFrame {
 						record.put("discount", String.valueOf(balance * -1));
 //						sale.put("payment_id", String.valueOf(grandTotal));
 						record.put("user_id", controller.currentUser.get("user_id"));
-						if (controller.currentUser.get("user_type").equalsIgnoreCase("admin")) {
+						if (controller.isAdmin()) {
 							record.put("approved", "YES");
 						}
 						else {
@@ -1152,9 +1152,9 @@ public class SalesPanel extends javax.swing.JFrame {
 //
 //	   }
 	
-	PostPaidDialod post = new PostPaidDialod();
+	PostPaidDialog post = new PostPaidDialog();
 	
-	class PostPaidDialod {
+	class PostPaidDialog {
 		JLabel addressLabel, balanceLabel, currentLabel, dueLabel, idLabel, limitLabel, nameLabel, paidLabel, totalLabel;
 	    JButton cancelButton, saveButton;
 	    JComboBox comboFullName;
@@ -1316,7 +1316,7 @@ public class SalesPanel extends javax.swing.JFrame {
 					record = ViewHelpers.constructParamsMap("total_amount", String.valueOf(lblShowTotal.getText()), "amount_paid", 
 							txtPaid.getText(), "balance", lblShowBalance.getText(), "method_of_payment", "CASH", "discount", "0", 
 							"user_id", controller.currentUser.get("user_id"));
-					if (controller.currentUser.get("user_type").equalsIgnoreCase("admin")) {
+					if (controller.isAdmin()) {
 						record.put("approved", "YES");
 					}
 					else {

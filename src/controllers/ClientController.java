@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
+import javax.swing.table.DefaultTableModel;
 
 import models.Sale;
 import models.SalesTransaction;
@@ -30,6 +31,7 @@ public class ClientController implements Runnable {
 	private static DBController db;
 	private MainWindow mainWindow;
 	private PostPaidDialog postPaid;
+	private UnapprovedSales unapproved;
 	public Map<String, String> currentUser = new HashMap<String, String>();
 
 	public ClientController(DBController db) {
@@ -39,6 +41,7 @@ public class ClientController implements Runnable {
 		if(db.setUp() && User.count() > 0) {
 			initLoginScreen();
 			displayLoginScreen();
+			initUnapprovedDialog();
 //			new Thread (this, "").start();
 		}
 		else {
@@ -117,8 +120,8 @@ public class ClientController implements Runnable {
 
         /* Create and display the form */
 		mainWindow = new MainWindow(this);
-//		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		mainWindow.setResizable(true);
+		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		mainWindow.setResizable(false);
 	}
 
 	public void hideMainScreen() {
@@ -139,6 +142,58 @@ public class ClientController implements Runnable {
 
 	public void displayPostPaidDialog() {
 		postPaid.createGUI();
+	}
+	
+	private void populateUnapprovedTable(String id) {
+		ViewHelpers.clearJTable(unapproved.tblModel);
+		List<Map<String, String>> sale = SalesTransaction.sales(id);
+		unapproved.tableData = new ArrayList<Map<String, String>>();
+		for(Map<String, String> record : sale) {
+			Vector<String> row = new Vector<String>();
+			Map<String, String> stock = Stock.find(record.get("stock_id"));
+			row.add(stock.get("name"));
+			row.add(record.get("quantity"));
+			row.add(stock.get("buying_price"));
+			row.add(record.get("price"));
+			row.add(String.valueOf(Double.parseDouble(record.get("price")) - Double.parseDouble(stock.get("buying_price"))));
+			row.add(record.get("VAT"));
+			row.add(record.get("total_amount"));
+			unapproved.tblModel.addRow(row);
+			
+			unapproved.row = new HashMap<String, String>();
+			unapproved.row.put("sale_id", record.get("id"));
+			unapproved.row.put("stock_id", stock.get("id"));
+			unapproved.row.put("quantity", record.get("quantity"));
+			unapproved.row.put("price", record.get("price"));
+			unapproved.row.put("total_amount", record.get("total_amount"));
+			unapproved.row.put("VAT", record.get("VAT"));
+			unapproved.tableData.add(unapproved.row);
+		}
+		unapproved.showOldTotalLabel.setText(SalesTransaction.find(id).get("total_amount"));
+		unapproved.lblHeader.setText("Unapproved Sales - Sale #"+id);
+//		double total = 0;
+//		for (int i = 0; i < unapproved.tblModel.getRowCount(); i++) {
+//			total += Double.parseDouble(unapproved.tblModel.getValueAt(i, 6).toString());
+//			if (total != Double.parseDouble(SalesTransaction.find(id).get("total_amount"))) {
+//				unapproved.showNewTotalLabel.setText(String.valueOf(total));
+//			}
+//			else {
+//				unapproved.showNewTotalLabel.setText("0");
+//			}
+//		}
+	}
+
+	private void initUnapprovedDialog() {
+		unapproved = new UnapprovedSales(this);
+	}
+
+	public void displayUnapprovedDialog(String id) {
+		populateUnapprovedTable(id);
+        unapproved.setVisible(true);
+	}
+	
+	public void destroyUnapprovedDialog() {
+		unapproved.dispose();
 	}
 	
 	public void switchToSales() {
@@ -173,31 +228,14 @@ public class ClientController implements Runnable {
 		return products;
 	}
 
-	public List<String> unapprovedSales() {
-		List<String> unapprovedSales = new ArrayList<String>();
-		for(Map<String, String> sale : SalesTransaction.where("approved", "NO")) {
-			String sales = "";
-			for(Map<String, String> ss : SalesTransaction.sales(sale.get("id"))) {
-				sales += Stock.find(ss.get("stock_id")).get("name") + "(" + ss.get("quantity") + ")" + " - ";
-			}
-			unapprovedSales.add("#" + sale.get("id") + " - " + sales);
-		}
-		return unapprovedSales;
-	}
-
 	@Override
 	public void run() {
-//		Login l = new Login(this);
 		List<String> activities = new ArrayList<String>();
 		try {
 			for (; ; ) {
-//	        	 String stock = Stock.showAll().get(i).get("name");
-//	        	 activities.add(stock);
-//	            setPassLbl(i);
-	        	 if (currentUser.get("user_type").equalsIgnoreCase("admin")) {
-	        		 populateList(unapprovedSales());
+	        	 if (isAdmin()) {
+	        		 populateList(SalesTransaction.unapprovedSales());
 				 }
-//	        	 populateList(unapprovedSales());
 	            Thread.sleep(960);
 	         }
 	     } catch (InterruptedException e) {
@@ -205,16 +243,9 @@ public class ClientController implements Runnable {
 	     }
 	}
 
-	private void setPassLbl(int i) {
-//		loginScreen.passLabel.setText(String.valueOf(i));
-		CardLayout card = new CardLayout();
-		ViewHelpers.switchPanels(card, mainWindow.cardPanel, String.valueOf(i));
-	}
-
 	public static void main(String[] args) {
 		db = new DBController();
-		new ClientController(db);
-		
+		new ClientController(db);		
 	}
 	
 }

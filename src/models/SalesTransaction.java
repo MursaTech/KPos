@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,28 @@ public class SalesTransaction {
 			last = find(String.valueOf(count()));
 		}
 		return last;
+	}
+	
+	public static boolean approved(String id) {
+		return find(id).get("approved") == "YES";
+	}
+	
+	public static List<String> unapprovedSales() {
+		List<String> unapprovedSales = new ArrayList<String>();
+		for(Map<String, String> sale : SalesTransaction.where("approved", "NO")) {
+			String sales = "";
+			for(Map<String, String> ss : SalesTransaction.sales(sale.get("id"))) {
+				sales += Stock.find(ss.get("stock_id")).get("name") + "(" + ss.get("quantity") + ")" + " - ";
+			}
+			unapprovedSales.add("#" + sale.get("id") + " - " + sales);
+		}
+		for(String sale : unapprovedSales) {
+			String saleId = sale.split(" - ")[0].replace("#", "");
+			if(approved(saleId)) {
+				unapprovedSales.remove(sale);
+			}
+		}
+		return unapprovedSales;
 	}
 	
 	public static void addColumn(String column, String type, String after) {

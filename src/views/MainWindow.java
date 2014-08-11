@@ -4,6 +4,7 @@ import helpers.DBHelpers;
 import helpers.ViewHelpers;
 
 import java.awt.CardLayout;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -330,8 +331,13 @@ public class MainWindow extends javax.swing.JFrame {
     }                                               
 
     private void notificationsListValueChanged(javax.swing.event.ListSelectionEvent evt) {
-    	controller.switchToExpenses();
-//    	JOptionPane.showMessageDialog(cardPanel, "Admin");
+    	try {
+			String id = notificationsList.getSelectedValue().toString().split(" - ")[0].replace("#", "");
+			controller.displayUnapprovedDialog(id);
+//			JOptionPane.showMessageDialog(cardPanel, id);
+		} catch (NullPointerException e) {
+			
+		}
     }                                              
                  
     private javax.swing.JPanel contentPanel;

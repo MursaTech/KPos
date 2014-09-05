@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import javax.swing.table.DefaultTableModel;
 
+import models.Category;
 import models.Sale;
 import models.SalesTransaction;
 import models.Session;
@@ -227,10 +228,17 @@ public class ClientController implements Runnable {
 		}
 		return products;
 	}
+	
+	public List<String> expenseCategories() {
+		List<String> categories = new ArrayList<String>();
+		for(TreeMap<String, String> category : Category.showAll()) {
+			categories.add(category.get("name"));
+		}
+		return categories;
+	}
 
 	@Override
 	public void run() {
-		List<String> activities = new ArrayList<String>();
 		try {
 			for (; ; ) {
 	        	 if (isAdmin()) {

@@ -26,8 +26,8 @@ public class Category {
 		return controller.show("categories", id);		
 	}
 
-	public static List<Map<String, String>> findBy(String field, String value) {
-		return where(field + " = '" + value + "'");		
+	public static Map<String, String> findBy(String field, String value) {
+		return where(field + " = '" + value + "'").get(0);		
 	}
 	
 	public static List<Map<String, String>> where(String field, String value) {
@@ -66,6 +66,22 @@ public class Category {
 	
 	public static boolean exists(String id, String value) {
 		return controller.recordExists("categories", id, value);
+	}
+	
+	public static Map<String, String> findOrCreateBy(String column, Map<String, String> params, boolean update) {
+		Map<String, String> record = new TreeMap<String, String>();
+		Map<String, String> conditions = new TreeMap<String, String>();
+		conditions.put(column, params.get(column));
+		if (exists(column, params.get(column))) {
+			if (update) {
+				update(params, conditions);
+			}
+			record = findBy(column, params.get(column));
+		}
+		else {
+			record = create(new TreeMap<String, String>(params));
+		}
+		return record;
 	}
 	
 	// Associations

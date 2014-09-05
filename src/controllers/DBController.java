@@ -29,10 +29,10 @@ public class DBController {
 	public Connection connect() {
 		Connection c = null;
 		try {
-			c = DriverManager.getConnection("jdbc:mysql://localhost:3306/KPos", "muaad", "muaad");
+			c = DriverManager.getConnection("jdbc:mysql://localhost:3306/kpos", "muaad", "muaad"); // "muaad", "muaad"
 			connected = true;
 		} catch (SQLException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 			connected = false;
 		}
 		return c;
@@ -49,7 +49,7 @@ public class DBController {
 	private static Connection connectInitial() {
 		Connection c = null;
 		try {
-			c = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "muaad", "muaad");
+			c = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "muaad", "muaad"); // "muaad", "muaad"
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -261,10 +261,11 @@ public class DBController {
 			keys.add(key);
 		}
 		String query;
+		String id = null;
 		query = helper.generateCreateQuery(table , params);
 		int n = 1;
 		try {
-			psmt = connect().prepareStatement(query);
+			psmt = connect().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 		
 			for (String l : params.keySet()) {
 				psmt.setString(n, params.get(l));
@@ -272,7 +273,18 @@ public class DBController {
 			}
 			psmt.executeUpdate();
 		} catch (SQLException e1) {e1.printStackTrace(); }
-		return show(table, params.get(keys.get(0)));
+		try (ResultSet generatedKeys = psmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                id = String.valueOf(generatedKeys.getLong(1));
+            }
+            else {
+                throw new SQLException("Creating record failed, no ID obtained.");
+            }
+        } catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return show(table, id);
 	}
 	
 	public void createTable() {

@@ -255,7 +255,7 @@ public class SalesPanel extends javax.swing.JFrame {
 					
 					}
 					else {
-						lblShowBalance.setText(Integer.parseInt(paid.toString()) - Integer.parseInt(lblShowTotal.getText())+"");
+						lblShowBalance.setText(Integer.parseInt(paid.toString()) - Double.parseDouble(lblShowTotal.getText())+"");
 						try {
 							paid.deleteCharAt(paid.length() - 1);
 						} catch (StringIndexOutOfBoundsException e1) {}
@@ -1238,8 +1238,6 @@ public class SalesPanel extends javax.swing.JFrame {
 					}
 				}
 			});
-
-	        txtID.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("id_number"));
 	        
 	        currentLabel.setBackground(new java.awt.Color(153, 153, 255));
 	        currentLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -1248,7 +1246,6 @@ public class SalesPanel extends javax.swing.JFrame {
 	        currentLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 2, true));
 	        currentLabel.setOpaque(true);
 	        
-	        txtTotal.setText(String.valueOf(Customer.totalOwing(comboFullName.getSelectedItem().toString())));
 	        txtTotal.setEditable(false);
 	        txtTotal.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 	        txtTotal.setCursor(new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR));
@@ -1270,8 +1267,6 @@ public class SalesPanel extends javax.swing.JFrame {
 	        addressLabel.setText("Address");
 	        addressLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 2, true));
 	        addressLabel.setOpaque(true);
-	        
-	        txtAddress.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("address"));
 
 	        dueLabel.setBackground(new java.awt.Color(153, 153, 255));
 	        dueLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -1279,8 +1274,6 @@ public class SalesPanel extends javax.swing.JFrame {
 	        dueLabel.setText("Due date");
 	        dueLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 2, true));
 	        dueLabel.setOpaque(true);
-	        
-	        txtDue.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("due_date"));
 
 	        limitLabel.setBackground(new java.awt.Color(153, 153, 255));
 	        limitLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -1288,8 +1281,6 @@ public class SalesPanel extends javax.swing.JFrame {
 	        limitLabel.setText("Limit");
 	        limitLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 2, true));
 	        limitLabel.setOpaque(true);
-	        
-	        txtLimit.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("allowed_limit"));
 
 	        totalLabel.setBackground(new java.awt.Color(153, 153, 255));
 	        totalLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -1297,6 +1288,14 @@ public class SalesPanel extends javax.swing.JFrame {
 	        totalLabel.setText("Toal owing");
 	        totalLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 2, true));
 	        totalLabel.setOpaque(true);
+	        
+	        if (comboFullName.getSelectedItem() != null) {
+	        	txtLimit.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("allowed_limit"));
+	        	txtDue.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("due_date"));
+	        	txtAddress.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("address"));
+	        	txtTotal.setText(String.valueOf(Customer.totalOwing(comboFullName.getSelectedItem().toString())));
+	        	txtID.setText(Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("id_number"));
+			}
 
 	        saveButton.setBackground(new java.awt.Color(255, 153, 51));
 	        saveButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N

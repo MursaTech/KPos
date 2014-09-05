@@ -1,5 +1,6 @@
 package models;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -53,8 +54,8 @@ public class Expense {
 		return controller.show("expenses", id);		
 	}
 
-	public static List<Map<String, String>> findBy(String field, String value) {
-		return where(field + " = '" + value + "'");		
+	public static Map<String, String> findBy(String field, String value) {
+		return where(field + " = '" + value + "'").get(0);		
 	}
 	
 	
@@ -67,7 +68,7 @@ public class Expense {
 	}
 
 	public static Map<String, String> create(TreeMap<String, String> params) {
-		return controller.create("expenses", params);		
+		return controller.create("expenses", params);
 	}
 
 
@@ -94,6 +95,34 @@ public class Expense {
 	
 	public static boolean exists(String id, String value) {
 		return controller.recordExists("expenses", id, value);
+	}
+	
+	public static Map<String, String> findOrCreateBy(String column, Map<String, String> params, boolean update) {
+		Map<String, String> record = new TreeMap<String, String>();
+		Map<String, String> conditions = new TreeMap<String, String>();
+		conditions.put(column, params.get(column));
+		if (exists(column, params.get(column))) {
+			if (update) {
+				update(params, conditions);
+			}
+			record = findBy(column, params.get(column));
+		}
+		else {
+			record = create(new TreeMap<String, String>(params));
+		}
+		return record;
+	}
+	
+	public static int count() {
+		return showAll().size();
+	}
+	
+	public static Map<String, String> last() {
+		Map<String, String> last = new HashMap<String, String>();
+		if (count() > 0) {
+			last = find(String.valueOf(count()));
+		}
+		return last;
 	}
 	
 	// Associations

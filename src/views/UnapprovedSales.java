@@ -292,6 +292,10 @@ public class UnapprovedSales extends javax.swing.JDialog {
 					Stock.update(updatedStocks.get(key), ViewHelpers.constructParamsMap("id", key));
 				}
 				
+				for(String saleId : itemsToDelete) {
+					Sale.delete(row.get(saleId));
+				}
+				
 				controller.destroyUnapprovedDialog();
 			}
 			
@@ -302,8 +306,11 @@ public class UnapprovedSales extends javax.swing.JDialog {
 				else {
 					int grandTotal = 0;
 					int selection = tblSales.getSelectedRow();
+					System.out.println(row);
+//					Sale.delete(row.get("sale_id"));
+					itemsToDelete.add(row.get("sale_id"));	
 					try {
-//						removeRow(selection);
+						removeRow(selection);
 					}
 					catch (IndexOutOfBoundsException e1) {
 						e1.printStackTrace();
@@ -311,9 +318,9 @@ public class UnapprovedSales extends javax.swing.JDialog {
 					
 					try {
 						for (int i = 0; i < tblModel.getRowCount(); i++) {
-							grandTotal += Integer.parseInt(tblModel.getValueAt(i,3).toString());							
+							grandTotal += Integer.parseInt(tblModel.getValueAt(i,6).toString());							
 						}
-//						lblShowTotal.setText(grandTotal +"");
+						showNewTotalLabel.setText(grandTotal +"");
 					} catch (ArrayIndexOutOfBoundsException e1) {}
 					
 				}
@@ -409,6 +416,11 @@ public class UnapprovedSales extends javax.swing.JDialog {
 		}
     	
     }
+    
+    private void removeRow(int selection) {
+		tblModel.removeRow(selection);
+		row.remove(selection);
+	}
     
     private void editRow(int selection, DefaultTableModel tblModel) {
 		tableData.get(selection).remove("quantity");
@@ -514,6 +526,7 @@ public class UnapprovedSales extends javax.swing.JDialog {
     Map<String, String> saleParams;
     boolean saleChanged = false;
     boolean stockChanged = false;
+    List<String> itemsToDelete = new ArrayList<String>();
     // End of variables declaration
 }
 

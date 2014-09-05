@@ -106,7 +106,7 @@ public class DBHelpers {
 //		Expense.delete("phone");
 //		Expense.deleteAll();
 //		System.out.println(Expense.where("product", "Personal Computers"));
-//		DBController.runMigrations();
+		DBController.runMigrations();
 //		System.out.println(h.recordExists("users", "id", "1", DBController.connect()));
 //		System.out.println(User.exists("first_name", "muaad"));;
 		
@@ -151,5 +151,7 @@ public class DBHelpers {
 //        System.out.println(className);
 //		UsersController u = new UsersController();
 //		System.out.println(u.className);
+//		Customer.deleteAll();
+//		CustomerTransaction.deleteAll();
 	}
 }

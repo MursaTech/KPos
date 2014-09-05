@@ -208,7 +208,7 @@ public class MainWindow extends javax.swing.JFrame {
 //            .addGap(0, 491, Short.MAX_VALUE)
 //        );
         SalesPanel sp = new SalesPanel(controller);
-        ExpensesPanel xp = new ExpensesPanel();
+        ExpensesPanel xp = new ExpensesPanel(controller);
         SalesStatsPanel stPanel = new SalesStatsPanel();
         InventoryManagement im = new InventoryManagement();
         cardPanel.add(sp.createSalesPanel(),"sales");

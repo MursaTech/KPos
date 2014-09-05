@@ -1,5 +1,7 @@
 package views;
 
+import helpers.ViewHelpers;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -10,6 +12,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -29,10 +35,17 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
+
+import models.Category;
+import models.Expense;
+import models.ExpenseTransaction;
+import models.SalesTransaction;
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+
+import controllers.ClientController;
 
 //import pos.SalesPanel.PopupListener;
 
@@ -41,6 +54,10 @@ import javax.swing.table.DefaultTableModel;
  * @author Muaad
  */
 public class ExpensesPanel {
+	
+	public ExpensesPanel(ClientController controller) {
+		this.controller = controller;
+	}
 	
 		JPanel expensePanel;
 	     JButton buttonAddExpense;
@@ -62,6 +79,11 @@ public class ExpensesPanel {
 		 DefaultTableModel tblModelXp;
 		 JMenuItem menuRemove, menuEdit, menuCancel;
 		 JPopupMenu popup;
+		 ClientController controller;
+		 List<Map<String, String>> row = new ArrayList<Map<String,String>>();
+		 private String expenseTransactionId;
+		 TreeMap<String, String> record;
+		 Map<String, String> params;
 		 
 		 Vector<String> elements = null;
 		 int xpense = 0;
@@ -132,6 +154,7 @@ public class ExpensesPanel {
 
         comboReason.setBackground(new java.awt.Color(153, 153, 255));
         comboReason.setEditable(true);
+        comboReason.setModel(new DefaultComboBoxModel(controller.expenseCategories().toArray(new String[controller.expenseCategories().size()])));
 
         buttonAddExpense.setBackground(new java.awt.Color(255, 153, 51));
         buttonAddExpense.setFont(new java.awt.Font("Tahoma", 1, 12));
@@ -356,90 +379,82 @@ public class ExpensesPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == buttonAddExpense) {
+				elements = new Vector<String>(3);
+				record = new TreeMap<String, String>();
+				
+				Map<String, String> category = Category.findOrCreateBy("name", ViewHelpers.constructParamsMap("name", 
+						comboReason.getSelectedItem().toString()), false);
+
 				try {
-					elements = new Vector<String>(3);
-
-					try {
-						xpense = Integer.parseInt(txtXpensePaid.getText());
-					} catch (Exception e2) {}
-					db.reason = (String) comboReason.getSelectedItem();
-					// sd.total = sd.price *
-					// Integer.parseInt(String.valueOf(comboQuantity.getSelectedItem()));
-					db.user = user;
-					db.pass = pass;
-					db.connect();
-					
-					//db.loadReasons();
-					elements.add(xpense + "");
-					elements.add((String)comboReason.getSelectedItem());
-					
-					db.xpense = xpense;					
-					db.recordExpense();
-
-					tblModelXp.addRow(elements);
-					for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
-						try {
-							if (!db.reasons.contains((String) tblModelXp.getValueAt(i, 1))) {
-								db.newReason = (String) tblModelXp.getValueAt(i, 1);
-								db.addReasons();
-								db.loadReasons();
-								comboReason.setModel(new DefaultComboBoxModel(db.reasons.toArray(new String[db.reasons.size()])));
-							}
-						} catch (Exception e1) {
-							
-						}
-						
-					}
-					//tblItemsXp.setFillsViewportHeight(true);
-					//tblItemsXp.setShowGrid(true);
-					tblItemsXp.setRowSelectionAllowed(true);
-					tblItemsXp.setAutoCreateRowSorter(true);
-					tblItemsXp.setBackground(new Color(153,204,255));
-					//tblItemsXp.setBorder(new LineBorder(new Color(153, 153, 255),3, true));
-					tblItemsXp.setFont(new Font("Tahoma", 0, 14));
-					int grandTotal = 0;
-					for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
-						grandTotal += Integer.parseInt(tblModelXp.getValueAt(i,
-								0).toString());
-					}
-					lblShowTotalXp.setText("<html><body><b><center>" + grandTotal
-							+ "</center></b></body></html>");
-					db.xpenseTotal = grandTotal;
-					
-				} catch (SQLException se) {
-					se.printStackTrace();
+					xpense = Integer.parseInt(txtXpensePaid.getText());
+				} catch (Exception e2) {}
+				
+				elements.add(xpense + "");
+				elements.add((String)comboReason.getSelectedItem());
+				
+				if (ExpenseTransaction.count() > 0) {
+					expenseTransactionId = String.valueOf(Integer.parseInt(ExpenseTransaction.last().get("id")) + 1);
+				} else {
+					expenseTransactionId = "1";
 				}
+				record.put("category_id", category.get("id"));
+				record.put("amount", String.valueOf(xpense));
+				record.put("expense_transaction_id", expenseTransactionId);
+				record.put("user_id", controller.currentUser.get("user_id"));
+				if (controller.isAdmin()) {
+					record.put("approved", "YES");
+				}
+				else {
+					record.put("approved", "NO");
+				}
+				row.add(record);
+
+				tblModelXp.addRow(elements);
+				
+				comboReason.setModel(new DefaultComboBoxModel(controller.expenseCategories().toArray(new String[controller.expenseCategories().size()])));
+
+				//tblItemsXp.setFillsViewportHeight(true);
+				//tblItemsXp.setShowGrid(true);
+				tblItemsXp.setRowSelectionAllowed(true);
+				tblItemsXp.setAutoCreateRowSorter(true);
+				tblItemsXp.setBackground(new Color(153,204,255));
+				//tblItemsXp.setBorder(new LineBorder(new Color(153, 153, 255),3, true));
+				tblItemsXp.setFont(new Font("Tahoma", 0, 14));
+				int grandTotal = 0;
+				for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
+					grandTotal += Integer.parseInt(tblModelXp.getValueAt(i,
+							0).toString());
+				}
+				lblShowTotalXp.setText(String.valueOf(grandTotal));
 
 				txtPaidXp.setText("");
 				txtPaidXp.requestFocus();
 				lblShowBalanceXp.setText("");
 			}
-			
-			
-			if(e.getSource() == txtPaidXp) {
-				db.xpPaid = Integer.parseInt(txtPaidXp.getText());
-				db.xpBalance = db.xpPaid - db.xpenseTotal;
-				lblShowBalanceXp.setText(db.xpBalance + "");
-				try {
-					db.recordTransactionXp();
-				} catch (SQLException e1) {}
-				db.xpenseTotal = 0;
-				for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
-					tblModelXp.removeRow(i);
-				}
-			}
 
-			if (e.getSource() == buttonSaveExpense) {
-				db.xpPaid = Integer.parseInt(txtPaidXp.getText());
-				db.xpBalance = db.xpPaid - db.xpenseTotal;
-				lblShowBalanceXp.setText(db.xpBalance + "");
-				try {
-					db.recordTransactionXp();
-				} catch (SQLException e1) {}
-				db.xpenseTotal = 0;
+			if (e.getSource() == buttonSaveExpense || e.getSource() == txtPaidXp) {
+				for(Map<String, String> xp : row) {
+					Expense.create(new TreeMap<>(xp));
+				}
+				
+				String approved = "";
+				if (controller.isAdmin()) {
+					approved = "YES";
+				}
+				else {
+					approved = "NO";
+				}
+				
+				params = ViewHelpers.constructParamsMap("total_amount", lblShowTotalXp.getText(), "amount_paid", txtPaidXp.getText(),
+						"user_id", controller.currentUser.get("user_id"), "approved", approved, 
+						"balance", String.valueOf(Integer.parseInt(txtPaidXp.getText()) - Integer.parseInt(lblShowTotalXp.getText())));
+				
+				ExpenseTransaction.create(new TreeMap<String, String>(params));
+				
 				for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
 					tblModelXp.removeRow(i);
 				}
+				row.clear();
 
 				// OR.....
 
@@ -460,18 +475,7 @@ public class ExpensesPanel {
 					int grandTotal = 0;
 					//System.out.println(grandTotal);
 					int row = tblItemsXp.getSelectedRow();
-					try {
-						db.xpDate = db.xpDates.get(row);
-						db.xpDates.remove(row);
-						//System.out.println(db.xpDate);
-					} catch (ArrayIndexOutOfBoundsException e3) {}
-					try {
-						db.deleteExpenseRecord();
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					tblModelXp.removeRow(row);
+					removeRow(row);
 					try {
 						for (int i = 0; i < tblModelXp.getRowCount(); i++) {
 							grandTotal += Integer.parseInt(tblModelXp.getValueAt(i,0).toString());							
@@ -492,18 +496,53 @@ public class ExpensesPanel {
 				else {
 					tblModelXp.setValueAt(tblModelXp.getValueAt(row, 0), row, 0);
 					tblModelXp.setValueAt(tblModelXp.getValueAt(row, 1), row, 1);
-					try {
-						db.editExpenseRecord(Integer.parseInt(tblModelXp.getValueAt(row, 0).toString()), tblModelXp.getValueAt(row, 1).toString(), db.xpDates.get(row));
-						//System.out.println(Integer.parseInt(tblModelXp.getValueAt(row, 0).toString())+" "+ tblModelXp.getValueAt(row, 1).toString()+" "+ db.xpDates.get(row));
-					} catch (NumberFormatException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					
+					editRow(row, tblModelXp);
+					
+					int grandTotal = 0;
+					for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
+						grandTotal += Integer.parseInt(tblModelXp.getValueAt(i,
+								0).toString());
 					}
+					lblShowTotalXp.setText(String.valueOf(grandTotal));
+//					try {
+//						db.editExpenseRecord(Integer.parseInt(tblModelXp.getValueAt(row, 0).toString()), tblModelXp.getValueAt(row, 1).toString(), db.xpDates.get(row));
+//						//System.out.println(Integer.parseInt(tblModelXp.getValueAt(row, 0).toString())+" "+ tblModelXp.getValueAt(row, 1).toString()+" "+ db.xpDates.get(row));
+//					} catch (NumberFormatException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					} catch (SQLException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
 				}
 			}
+			
+			if (e.getSource() == menuCancel) {
+				cancelTransaction();
+			}
 		}
+	}
+	
+	private void removeRow(int selection) {
+		tblModelXp.removeRow(selection);
+		row.remove(selection);
+	}
+	
+	private void editRow(int selection, DefaultTableModel tblModel) {
+		row.get(selection).remove("amount");
+		row.get(selection).put("amount", tblModel.getValueAt(selection, 0).toString());
+		params = ViewHelpers.constructParamsMap("name", tblModel.getValueAt(selection, 1).toString().toString());
+		Map<String, String> category = Category.findOrCreateBy("name", params, false);
+		row.get(selection).put("category_id", category.get("id"));
+		System.out.println(category);
+	}
+	
+	private void cancelTransaction() {
+		ViewHelpers.clearJTable(tblModelXp);
+		row.clear();
+		txtPaidXp.setText("");
+		lblShowBalanceXp.setText("");
+		lblShowTotalXp.setText("");
 	}
 }

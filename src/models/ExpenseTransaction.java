@@ -1,6 +1,7 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -88,6 +89,18 @@ public class ExpenseTransaction {
 	
 	public static boolean exists(String id, String value) {
 		return controller.recordExists("expense_transactions", id, value);
+	}
+	
+	public static int count() {
+		return showAll().size();
+	}
+	
+	public static Map<String, String> last() {
+		Map<String, String> last = new HashMap<String, String>();
+		if (count() > 0) {
+			last = find(String.valueOf(count()));
+		}
+		return last;
 	}
 	
 	// Associations

@@ -210,7 +210,7 @@ public class MainWindow extends javax.swing.JFrame {
         SalesPanel sp = new SalesPanel(controller);
         ExpensesPanel xp = new ExpensesPanel(controller);
         SalesStatsPanel stPanel = new SalesStatsPanel();
-        InventoryManagement im = new InventoryManagement();
+        im = new InventoryManagement(controller);
         cardPanel.add(sp.createSalesPanel(),"sales");
         cardPanel.add(xp.createExpensePanel(),"expense");
 //        cardPanel.add(calc.cp, "calc");
@@ -328,6 +328,8 @@ public class MainWindow extends javax.swing.JFrame {
     
     private void inventoryButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                
         controller.switchToStock();
+        ViewHelpers.clearJTable(im.tblModel);
+        controller.populateStocksTable(im.tblModel);
     }                                               
 
     private void notificationsListValueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -361,5 +363,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField txtSearch;
     public javax.swing.JLabel userNameLabel;
     private ClientController controller;
+    InventoryManagement im;
     // End of variables declaration                   
 }

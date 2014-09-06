@@ -797,11 +797,11 @@ public class SalesPanel extends javax.swing.JFrame {
 					elements.add(String.valueOf(vat));
 					elements.add(total + "");
 					
-					if (SalesTransaction.count() > 0) {
-						salesTransactionId = String.valueOf(Integer.parseInt(SalesTransaction.last().get("id")) + 1);
-					} else {
-						salesTransactionId = "1";
-					}
+//					if (SalesTransaction.count() > 0) {
+//						salesTransactionId = String.valueOf(Integer.parseInt(SalesTransaction.last().get("id")) + 1);
+//					} else {
+//						salesTransactionId = "1";
+//					}
 					record.put("stock_id", stock_id);
 					record.put("quantity", String.valueOf(enteredQuantity));
 					record.put("price", String.valueOf(sellingPrice));
@@ -1003,8 +1003,9 @@ public class SalesPanel extends javax.swing.JFrame {
 		lblShowTotal.setText("");
 	}
 	
-	private void recordSale() {
+	private void recordSale(String salesTransactionId) {
 		for(Map<String, String> sale : row) {
+			sale.put("sales_transaction_id", salesTransactionId);
 			Sale.create(new TreeMap<>(sale));
 			params = new HashMap<String, String>();
 			conditions = new HashMap<String, String>();
@@ -1029,7 +1030,6 @@ public class SalesPanel extends javax.swing.JFrame {
 			lblShowBalance.setText(balance + "");
 			if(total > 0) {
 				if (balance >= 0) {
-					recordSale();
 					record = new TreeMap<String, String>();
 					record.put("total_amount", String.valueOf(lblShowTotal.getText()));
 					record.put("amount_paid", txtPaid.getText());
@@ -1046,7 +1046,8 @@ public class SalesPanel extends javax.swing.JFrame {
 						record.put("approved", "NO");
 //						new Thread (controller, "").start();
 					}
-					SalesTransaction.create(record);
+					salesTransactionId = SalesTransaction.create(record).get("id");
+					recordSale(salesTransactionId);
 					
 					total = 0;
 					ViewHelpers.clearJTable(tblModel);
@@ -1055,7 +1056,6 @@ public class SalesPanel extends javax.swing.JFrame {
 					int choice = JOptionPane.showConfirmDialog(null, "You are still owed "+String.valueOf(balance).substring(1)+
 							" Kshs! Do you want to give it as discount?", "Discount", JOptionPane.YES_NO_OPTION);
 					if(choice == 0) {
-						recordSale();
 //						discount = balance * -1;
 						record = new TreeMap<String, String>();
 						record.put("total_amount", String.valueOf(lblShowTotal.getText()));
@@ -1072,7 +1072,8 @@ public class SalesPanel extends javax.swing.JFrame {
 							record.put("approved", "NO");
 							new Thread (controller, "").start();
 						}
-						SalesTransaction.create(record);
+						salesTransactionId = SalesTransaction.create(record).get("id");
+						recordSale(salesTransactionId);
 						
 						ViewHelpers.clearJTable(tblModel);
 					}
@@ -1311,7 +1312,6 @@ public class SalesPanel extends javax.swing.JFrame {
 							txtID.getText(), "address", txtAddress.getText(), "allowed_limit", txtLimit.getText(),
 							"due_date", txtDue.getText(), "total_owing", String.valueOf(Customer.totalOwing(fullName) + balanceOwing));
 					Customer.findOrCreateBy("full_name", params, true);
-					recordSale();
 					record = ViewHelpers.constructParamsMap("total_amount", String.valueOf(lblShowTotal.getText()), "amount_paid", 
 							txtPaid.getText(), "balance", lblShowBalance.getText(), "method_of_payment", "CASH", "discount", "0", 
 							"user_id", controller.currentUser.get("user_id"));
@@ -1323,7 +1323,8 @@ public class SalesPanel extends javax.swing.JFrame {
 						new Thread (controller, "").start();
 					}
 					
-					SalesTransaction.create(record);
+					salesTransactionId = SalesTransaction.create(record).get("id");
+					recordSale(salesTransactionId);
 					ViewHelpers.clearJTable(tblModel);
 					
 					String customerId = Customer.findBy("full_name", comboFullName.getSelectedItem().toString()).get("id");

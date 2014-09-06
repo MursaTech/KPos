@@ -103,6 +103,22 @@ public class Stock {
 	public static List<String> columns() {
 		return controller.columns("stocks");
 	}
+	
+	public static Map<String, String> findOrCreateBy(String column, Map<String, String> params, boolean update) {
+		Map<String, String> record = new TreeMap<String, String>();
+		Map<String, String> conditions = new TreeMap<String, String>();
+		conditions.put(column, params.get(column));
+		if (exists(column, params.get(column))) {
+			if (update) {
+				update(params, conditions);
+			}
+			record = findBy(column, params.get(column));
+		}
+		else {
+			record = create(new TreeMap<String, String>(params));
+		}
+		return record;
+	}
 
 	// Associations
 	

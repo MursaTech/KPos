@@ -211,6 +211,7 @@ public class ClientController implements Runnable {
 
 	public void switchToStock() {
 		ViewHelpers.switchPanels(new CardLayout(), mainWindow.cardPanel, "stock");
+//		populateStocksTable();
 	}
 
 	public void populateList(List<String> activities) {
@@ -235,6 +236,21 @@ public class ClientController implements Runnable {
 			categories.add(category.get("name"));
 		}
 		return categories;
+	}
+	
+	public void populateStocksTable(DefaultTableModel tblModel) {
+		Vector<String> row;
+		for(TreeMap<String, String> product : Stock.showAll()) {
+			row = new Vector<String>();
+			row.add(product.get("name"));
+			row.add(product.get("quantity"));
+			row.add(product.get("units"));
+			row.add(product.get("buying_price"));
+			row.add(product.get("selling_price"));
+			row.add(product.get("created_at"));
+			
+			tblModel.addRow(row);
+		}
 	}
 
 	@Override

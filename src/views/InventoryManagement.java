@@ -4,14 +4,25 @@
  */
 package views;
 
+import helpers.ViewHelpers;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.border.*;
+
+import models.Stock;
+
+import controllers.ClientController;
 
 /**
  *
@@ -37,9 +48,19 @@ public class InventoryManagement extends JFrame {
     JTextField txtName;
     JTextField txtQuantity;
     JTextField txtSell;
-    DefaultTableModel tblModel = new DefaultTableModel();
+    public DefaultTableModel tblModel;
+    
+    ClientController controller;
+	List<Map<String, String>> row = new ArrayList<Map<String,String>>();
+//	private String expenseTransactionId;
+	TreeMap<String, String> record;
+	Map<String, String> params;
+	EventHandler eHandler;
+	 
+	 Vector<String> elements = null;
 	
-    public InventoryManagement() {
+    public InventoryManagement(ClientController controller) {
+    	this.controller = controller;
         createInventoryPanel();
     }
     
@@ -60,9 +81,11 @@ public class InventoryManagement extends JFrame {
         comboUnits = new JComboBox();
         containerPanel = new JPanel();
         jScrollPane1 = new JScrollPane();
+        tblModel = new DefaultTableModel();
         tblInventory = new JTable(tblModel);
         bDelete = new JButton();
         bEdit = new JButton();
+        eHandler = new EventHandler();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -102,10 +125,13 @@ public class InventoryManagement extends JFrame {
         lblSell.setText("Selling Price");
         lblSell.setBorder(new LineBorder(new Color(102, 102, 255), 2, true));
         lblSell.setOpaque(true);
+        
+        txtSell.addActionListener(eHandler);
 
         bAdd.setBackground(new Color(255, 153, 51));
         bAdd.setFont(new Font("Tahoma", 1, 14)); // NOI18N
         bAdd.setText("Add Inventory");
+        bAdd.addActionListener(eHandler);
 
         lblUnits.setBackground(new Color(153, 153, 255));
         lblUnits.setFont(new Font("Tahoma", 1, 14)); // NOI18N
@@ -117,6 +143,13 @@ public class InventoryManagement extends JFrame {
 
         comboUnits.setModel(new DefaultComboBoxModel(new String[] { "Kilograms", "Grams", "Litre", "Bags", "Bottles", "Packets" }));
         comboUnits.setEditable(true);
+        
+        tblModel.addColumn("Product");
+        tblModel.addColumn("Quantity");
+        tblModel.addColumn("Units");
+        tblModel.addColumn("Buying Price");
+        tblModel.addColumn("Selling Price");
+        tblModel.addColumn("Date");
 
         GroupLayout addPanelLayout = new GroupLayout(addPanel);
         addPanel.setLayout(addPanelLayout);
@@ -202,10 +235,12 @@ public class InventoryManagement extends JFrame {
         bDelete.setBackground(new Color(255, 153, 51));
         bDelete.setFont(new Font("Tahoma", 1, 14)); // NOI18N
         bDelete.setText("Delete");
+        bDelete.addActionListener(eHandler);
 
         bEdit.setBackground(new Color(255, 153, 51));
         bEdit.setFont(new Font("Tahoma", 1, 14)); // NOI18N
         bEdit.setText("Edit");
+        bEdit.addActionListener(eHandler);
 
         GroupLayout containerPanelLayout = new GroupLayout(containerPanel);
         containerPanel.setLayout(containerPanelLayout);
@@ -276,29 +311,95 @@ public class InventoryManagement extends JFrame {
 		return inventoryPanel;
     }
     
-    public static void main(String args[]) {
-        try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new InventoryManagement().setVisible(true);
-            }
-        });
+    class EventHandler implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == bAdd || e.getSource() == txtSell) {
+				params = ViewHelpers.constructParamsMap("name", txtName.getText(), "quantity", txtQuantity.getText(),
+						"units", comboUnits.getSelectedItem().toString(), "buying_price", txtBuy.getText(),
+						"selling_price", txtSell.getText());
+				record = new TreeMap<String, String>(Stock.create(new TreeMap<String, String>(params)));
+				System.out.println(record);
+				elements = new Vector<String>();
+				elements.add(record.get("name"));
+				elements.add(record.get("quantity"));
+				elements.add(record.get("units"));
+				elements.add(record.get("buying_price"));
+				elements.add(record.get("selling_price"));
+				elements.add(record.get("created_at"));
+				tblModel.addRow(elements);
+			}
+			if(e.getSource() == bDelete) {
+				if (tblInventory.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "Please select the item(s) to remove from inventory");
+				}
+				else {
+					int choice = JOptionPane.showConfirmDialog(null,"Are you sure you want to remove selected item(s) from inventory?",
+									"Remove", JOptionPane.YES_NO_OPTION);
+					//System.out.println(choice);
+					if (choice == 0) {
+						for (int i = 0; i < tblInventory.getSelectedRows().length; i++) {
+							String createdAt = (String) tblModel.getValueAt(tblInventory.getSelectedRows()[i], 5);
+							Stock.delete(Stock.findBy("created_at", createdAt).get("id"));
+						}
+					}
+				}
+				txtName.requestFocus();
+				ViewHelpers.clearJTable(tblModel);
+				controller.populateStocksTable(tblModel);
+			}
+			
+			if(e.getSource() == bEdit) {
+				if(tblInventory.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "Please select which row to edit.");
+				}
+				else {
+					int choice = JOptionPane.showConfirmDialog(null,"Are you sure you want to edit selected item?",
+							"Edit", JOptionPane.YES_NO_OPTION);
+					if (choice == 0) {
+						String name = (String) tblModel.getValueAt(tblInventory.getSelectedRow(), 0);
+						String quantity = (String) tblModel.getValueAt(tblInventory.getSelectedRow(), 1);
+						String units = (String) tblModel.getValueAt(tblInventory.getSelectedRow(), 2);
+						String buying_price = (String) tblModel.getValueAt(tblInventory.getSelectedRow(), 3);
+						String selling_price = (String) tblModel.getValueAt(tblInventory.getSelectedRow(), 4);
+						String createdAt = (String) tblModel.getValueAt(tblInventory.getSelectedRow(), 5);
+						params = ViewHelpers.constructParamsMap("name", name, "quantity", quantity, "units", units,
+								"buying_price", buying_price, "selling_price", selling_price, "created_at", createdAt);
+						Stock.findOrCreateBy("created_at", params, true);
+					}
+				}
+				txtName.requestFocus();
+				ViewHelpers.clearJTable(tblModel);
+				controller.populateStocksTable(tblModel);
+			}
+		}
+    	
     }
+    
+//    public static void main(String args[]) {
+//        try {
+//            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(InventoryManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        
+//        EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new InventoryManagement().setVisible(true);
+//            }
+//        });
+//    }
     
 }

@@ -599,12 +599,12 @@ public class MursalSales {
                 .addContainerGap())
         );
 
-        im.tblModel.addColumn("Product");
-        im.tblModel.addColumn("Quantity");
-        im.tblModel.addColumn("Units");
-        im.tblModel.addColumn("Buying Price");
-        im.tblModel.addColumn("Selling Price");
-        im.tblModel.addColumn("Date");
+//        im.tblModel.addColumn("Product");
+//        im.tblModel.addColumn("Quantity");
+//        im.tblModel.addColumn("Units");
+//        im.tblModel.addColumn("Buying Price");
+//        im.tblModel.addColumn("Selling Price");
+//        im.tblModel.addColumn("Date");
         for (int i = 0; i < columns.size(); i++) {
 			vPanel.tblModel.addColumn(columns.get(i));
 		}

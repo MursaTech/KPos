@@ -87,9 +87,6 @@ public class ExpensesPanel {
 		 
 		 Vector<String> elements = null;
 		 int xpense = 0;
-		 String user = null, pass = null;
-		 
-		 MursalDB db = new MursalDB();
 		 
 		 EventHandler eHandler = new EventHandler();
 		 
@@ -432,11 +429,7 @@ public class ExpensesPanel {
 				lblShowBalanceXp.setText("");
 			}
 
-			if (e.getSource() == buttonSaveExpense || e.getSource() == txtPaidXp) {
-				for(Map<String, String> xp : row) {
-					Expense.create(new TreeMap<>(xp));
-				}
-				
+			if (e.getSource() == buttonSaveExpense || e.getSource() == txtPaidXp) {				
 				String approved = "";
 				if (controller.isAdmin()) {
 					approved = "YES";
@@ -449,7 +442,12 @@ public class ExpensesPanel {
 						"user_id", controller.currentUser.get("user_id"), "approved", approved, 
 						"balance", String.valueOf(Integer.parseInt(txtPaidXp.getText()) - Integer.parseInt(lblShowTotalXp.getText())));
 				
-				ExpenseTransaction.create(new TreeMap<String, String>(params));
+				expenseTransactionId = ExpenseTransaction.create(new TreeMap<String, String>(params)).get("id");
+
+				for(Map<String, String> xp : row) {
+					xp.put("expense_transaction_id", expenseTransactionId);
+					Expense.create(new TreeMap<>(xp));
+				}
 				
 				for (int i = tblModelXp.getRowCount() - 1; i >= 0; i--) {
 					tblModelXp.removeRow(i);

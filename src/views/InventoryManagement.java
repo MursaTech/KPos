@@ -20,6 +20,8 @@ import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.border.*;
 
+import com.toedter.calendar.JDateChooser;
+
 import models.Stock;
 
 import controllers.ClientController;
@@ -52,7 +54,6 @@ public class InventoryManagement extends JFrame {
     
     ClientController controller;
 	List<Map<String, String>> row = new ArrayList<Map<String,String>>();
-//	private String expenseTransactionId;
 	TreeMap<String, String> record;
 	Map<String, String> params;
 	EventHandler eHandler;
@@ -316,19 +317,32 @@ public class InventoryManagement extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bAdd || e.getSource() == txtSell) {
-				params = ViewHelpers.constructParamsMap("name", txtName.getText(), "quantity", txtQuantity.getText(),
-						"units", comboUnits.getSelectedItem().toString(), "buying_price", txtBuy.getText(),
-						"selling_price", txtSell.getText());
-				record = new TreeMap<String, String>(Stock.create(new TreeMap<String, String>(params)));
-				System.out.println(record);
-				elements = new Vector<String>();
-				elements.add(record.get("name"));
-				elements.add(record.get("quantity"));
-				elements.add(record.get("units"));
-				elements.add(record.get("buying_price"));
-				elements.add(record.get("selling_price"));
-				elements.add(record.get("created_at"));
-				tblModel.addRow(elements);
+				if (Stock.where("name", txtName.getText()).size() == 0) {
+					params = ViewHelpers.constructParamsMap("name", txtName.getText(), "quantity", txtQuantity.getText(),
+							"units", comboUnits.getSelectedItem().toString(), "buying_price", txtBuy.getText(),
+							"selling_price", txtSell.getText());
+					record = new TreeMap<String, String>(Stock.create(new TreeMap<String, String>(params)));
+					elements = new Vector<String>();
+					elements.add(record.get("name"));
+					elements.add(record.get("quantity"));
+					elements.add(record.get("units"));
+					elements.add(record.get("buying_price"));
+					elements.add(record.get("selling_price"));
+					elements.add(record.get("created_at"));
+					tblModel.addRow(elements);
+				}
+				else {
+//					TODO: Add to StockReserve
+					String newQuantity = String.valueOf(Integer.parseInt(txtQuantity.getText()) + 
+							Integer.parseInt(Stock.findBy("name", txtName.getText()).get("quantity")));
+					params = ViewHelpers.constructParamsMap("name", txtName.getText(), "quantity", newQuantity,
+							"units", comboUnits.getSelectedItem().toString(), "buying_price", txtBuy.getText(),
+							"selling_price", txtSell.getText());
+					Stock.findOrCreateBy("name", params, true);
+					ViewHelpers.clearJTable(tblModel);
+					controller.populateStocksTable(tblModel);
+				}
+				
 			}
 			if(e.getSource() == bDelete) {
 				if (tblInventory.getSelectedRow() == -1) {

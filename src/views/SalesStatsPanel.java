@@ -5,12 +5,25 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
+
+import models.Sale;
+import models.SalesTransaction;
+import models.Stock;
+import models.User;
+
+import com.toedter.calendar.JDateChooser;
+
+import controllers.ClientController;
 
 /**
  *
@@ -18,17 +31,23 @@ import javax.swing.table.DefaultTableModel;
  */
 public class SalesStatsPanel extends JFrame {
 	
-    public SalesStatsPanel() {
-        createSalesStatsOverviewPanel();
-    }
-    
-    TransactionStats ts = new TransactionStats();
+	TransactionStats ts = new TransactionStats();
     ItemsSoldPanel items = new ItemsSoldPanel();
     EventHandler eHandler = new EventHandler();
     CardLayout card = new CardLayout();
     List<String> columns = new LinkedList<String>();
     List<String> itemColumns = new LinkedList<String>();
+    ClientController controller;
+    Vector<String> row;
+	List<Vector<String>> rows = new ArrayList<Vector<String>>();
+	TreeMap<String, String> record;
+	Map<String, String> params;
     MursalDB db = new MursalDB();
+	
+    public SalesStatsPanel(ClientController controller) {
+    	this.controller = controller;
+        createSalesStatsOverviewPanel();
+    }
     
     public JPanel createSalesStatsOverviewPanel() {
     	
@@ -37,25 +56,25 @@ public class SalesStatsPanel extends JFrame {
         lblction = new JLabel();
         comboAction = new JComboBox();
         fromLbl = new JLabel();
-        fromCombo = new JComboBox();
+        fromCombo = new JDateChooser();
         buttonSearch = new JButton();
         toLbl = new JLabel();
-        toCombo = new JComboBox();
+        toCombo = new JDateChooser();
         salesStatsPanel = new JPanel();
         salesOverviewPanel = new JPanel();
         lblOverview = new JLabel();
         lblSummary = new JLabel();
         
-        lblSummary.setText("<html><body><table width=\"930\" height=100% border=\"0\">"+
+        lblSummary.setText("<html><body><table width=\"1000\" height=100% border=\"0\">"+
 				"<tr valign=\"top\">"+
 				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
 				"<b>Total Sales</b>" +
 				"<td style=\"background-color:#eeeeee;height:90px;width:500px;text-align:top;\">"+
-				"<ul><li>Today - <b> Kshs. db.salesTotal</b></li><li>Yesterday -<b> Kshs. db.yesterdaySalesTotal"+
+				"<ul><li>Today - <b> Kshs. "+SalesTransaction.total()+"</b></li><li>Yesterday -<b> Kshs. db.yesterdaySalesTotal"+
 				"</b></li><li>This week -<b> Kshs. db.weekSalesTotal</b></li>" +
 						"<li>This month -<b> Kshs. db.monthSalesTotal</b></li>" +
-						"<li>This Year -<b> Kshs. db.yearSalesTotal</b></li><li>From the begining of time -<b> Kshs. " +
-						"db.grandSalesTotal</b></li></ul></td></tr>" +
+						"<li>This Year -<b> Kshs. db.yearSalesTotal</b></li><li>From the begining of time -<b> Kshs. "+SalesTransaction.total()+
+						"</b></li></ul></td></tr>" +
 				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
 				"<b>Items Sold</b>" +
 				"<td style=\"background-color:#eeeeee;height:90px;width:500px;text-align:top;\">"+
@@ -99,9 +118,9 @@ public class SalesStatsPanel extends JFrame {
         fromLbl.setFocusable(false);
         fromLbl.setOpaque(true);
 
-        fromCombo.setBackground(new java.awt.Color(153, 153, 255));
-        fromCombo.setMaximumRowCount(5);
-        fromCombo.addActionListener(eHandler);
+        fromCombo.setBackground(new java.awt.Color(0, 51, 102));
+//        fromCombo.setMaximumRowCount(5);
+//        fromCombo.addActionListener(eHandler);
         //fromCombo.setEditable(true);
 
         buttonSearch.setBackground(new java.awt.Color(255, 153, 51));
@@ -117,9 +136,9 @@ public class SalesStatsPanel extends JFrame {
         toLbl.setFocusable(false);
         toLbl.setOpaque(true);
 
-        toCombo.setBackground(new java.awt.Color(153, 153, 255));
-        toCombo.setMaximumRowCount(5);
-        toCombo.addActionListener(eHandler);
+        toCombo.setBackground(new java.awt.Color(0, 51, 102));
+//        toCombo.setMaximumRowCount(5);
+//        toCombo.addActionListener(eHandler);
         //toCombo.setEditable(true);
 
         GroupLayout jPanel3Layout = new GroupLayout(jPanel3);
@@ -134,11 +153,11 @@ public class SalesStatsPanel extends JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(fromLbl)
                 .addGap(18, 18, 18)
-                .addComponent(fromCombo, GroupLayout.PREFERRED_SIZE, 112, GroupLayout.PREFERRED_SIZE)
+                .addComponent(fromCombo, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(toLbl, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20)
-                .addComponent(toCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(toCombo, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(buttonSearch, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(58, Short.MAX_VALUE))
@@ -212,12 +231,15 @@ public class SalesStatsPanel extends JFrame {
                 .addContainerGap())
         );*/
         
-        columns.add("Transaction ID");
+//        columns.add("Transaction ID");
         columns.add("Total Amount");
         columns.add("Amount Paid");
         columns.add("Balance");
-        columns.add("Time");
+        columns.add("VAT");
         columns.add("Discount");
+        columns.add("Approved");
+        columns.add("Authorized By");
+        columns.add("Time");
         
         itemColumns.add("Item Name");
         itemColumns.add("Number Sold");
@@ -287,10 +309,7 @@ public class SalesStatsPanel extends JFrame {
 						}
 					}
 					columns.clear();
-					db.user = user;
-					db.pass = pass;
-					db.connect();
-					loadTransaction();
+					loadTransactions();
 				}
 				
 				if(comboAction.getSelectedItem().equals("Individual items sold")) {
@@ -317,23 +336,26 @@ public class SalesStatsPanel extends JFrame {
 		}
     	
     }
-    void loadTransaction() {
-    	try {
-    		for (int i = ts.tblModel.getRowCount() - 1; i >= 0; i--) {
-    			ts.tblModel.removeRow(i);
-    		}
-    		//db.columns.clear();
-			db.loadTransactionTable();
-			for (int i = 0; i < db.listOfVectorsTrans.size(); i++) {
-				ts.tblModel.addRow(db.listOfVectorsTrans.get(i));
-			}
-			ts.lblTotal.setText(ts.total + db.totalForPeriod);
-			db.totalForPeriod = 0;
-			db.listOfVectorsTrans.clear();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+    void loadTransactions() {
+		for (int i = ts.tblModel.getRowCount() - 1; i >= 0; i--) {
+			ts.tblModel.removeRow(i);
 		}
+		
+		for(TreeMap<String, String> record : SalesTransaction.showAll()) {
+			row = new Vector<String>();
+//			row.add(record.get("id"));
+			row.add(record.get("total_amount"));
+			row.add(record.get("amount_paid"));
+			row.add(record.get("balance"));
+			row.add(record.get("VAT"));
+			row.add(record.get("discount"));
+			row.add(record.get("approved"));
+			row.add(User.fullName(record.get("user_id")));
+			row.add(record.get("created_at"));
+			
+			ts.tblModel.addRow(row);
+		}
+		ts.lblTotal.setText(ts.total + SalesTransaction.total());
     }
     
     void loadVariableTransaction() {
@@ -344,8 +366,8 @@ public class SalesStatsPanel extends JFrame {
 			db.user = user;
 			db.pass = pass;
 			db.connect();
-			db.fromDate = fromCombo.getSelectedItem().toString();
-			db.toDate = toCombo.getSelectedItem().toString();
+//			db.fromDate = fromCombo.getSelectedItem().toString();
+//			db.toDate = toCombo.getSelectedItem().toString();
 			db.loadVariableTransactionTable();
 			//System.out.println(db.fromDate+ " "+ db.toDate);
 			for (int i = 0; i < db.listOfVectorsVarTrans.size(); i++) {
@@ -365,26 +387,26 @@ public class SalesStatsPanel extends JFrame {
     
     void loadItemsTable() {
     	int total = 0;
-    	try {
-    		for (int i = items.tblModel.getRowCount() - 1; i >= 0; i--) {
-    			items.tblModel.removeRow(i);
-    		}
-    		//db.columns.clear();
-			db.loadItemsTable();
-			for (int i = 0; i < db.listOfVectorsItems.size(); i++) {
-				items.tblModel.addRow(db.listOfVectorsItems.get(i));
-			}
-			for (int i = 0; i < db.listOfVectorsItems.size(); i++) {
-				total = total + Integer.parseInt(db.listOfVectorsItems.get(i).get(1));
-			}
-			items.lblTotal.setText(items.total + total);
-			total = 0;
-			db.listOfVectorsItems.clear();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		for (int i = items.tblModel.getRowCount() - 1; i >= 0; i--) {
+			items.tblModel.removeRow(i);
 		}
-    }
+		//db.columns.clear();
+		
+		for(TreeMap<String, String> record : Stock.showAll()) {
+			row = new Vector<String>();
+			row.add(record.get("name"));
+			System.out.println(record.get("id"));
+			row.add(Stock.quantitySold(record.get("id")) + "");
+			row.add(Stock.amountSold(record.get("id")) + "");
+			row.add(Stock.profit(record.get("id")) + "");
+			
+			items.tblModel.addRow(row);
+		}
+		for (int i = 0; i < items.tblModel.getRowCount(); i++) {
+			total += Integer.parseInt(items.tblItems.getValueAt(i, 1).toString());
+		}
+		items.lblTotal.setText(items.total + total);
+	}
     
     void loadVariableItems() {
     	int total = 0;
@@ -395,8 +417,8 @@ public class SalesStatsPanel extends JFrame {
 			db.user = user;
 			db.pass = pass;
 			db.connect();
-			db.fromDate = fromCombo.getSelectedItem().toString();
-			db.toDate = toCombo.getSelectedItem().toString();
+//			db.fromDate = fromCombo.getSelectedItem().toString();
+//			db.toDate = toCombo.getSelectedItem().toString();
 			db.loadVariableItemsTable();
 			//System.out.println(db.fromDate+ " "+ db.toDate);
 			for (int i = 0; i < db.listOfVectorsItemsVar.size(); i++) {
@@ -431,41 +453,41 @@ public class SalesStatsPanel extends JFrame {
 		card.show(cardpanel, "items");
 	}
     
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new SalesStatsPanel().setVisible(true);
-            }
-        });
-    }
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new SalesStatsPanel(controllers).setVisible(true);
+//            }
+//        });
+//    }
     // Variables declaration - do not modify
     JButton buttonSearch;
     JComboBox comboAction;
-    JComboBox fromCombo;
+    JDateChooser fromCombo;
     JLabel fromLbl;
     JLabel lblOverview;
     JLabel lblSummary;
@@ -474,7 +496,7 @@ public class SalesStatsPanel extends JFrame {
     JPanel salesOverviewPanel;
     JPanel salesStatsPanel;
     JPanel statsPanel;
-    JComboBox toCombo;
+    JDateChooser toCombo;
     JLabel toLbl;
     // End of variables declaration
 }

@@ -133,6 +133,14 @@ public class SalesTransaction {
 		return unapprovedSales;
 	}
 	
+	public static double total() {
+		double total = 0.0;
+		for(TreeMap<String, String> sale : showAll()) {
+			total += Double.parseDouble(sale.get("total_amount"));
+		}
+		return total;
+	}
+	
 	public static void addColumn(String column, String type, String after) {
 		controller.addColumn("sales_transactions", column, type, after);
 	}

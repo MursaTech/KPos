@@ -5,7 +5,10 @@
 	<classpathentry kind="lib" path="F:/POSWorkspace/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="lib" path="F:/POSWorkspace/org-jdesktop-layout.jar"/>
 	<classpathentry kind="lib" path="F:/POSWorkspace/swing-layout-1.0.4.jar"/>
-	<classpathentry kind="lib" path="F:/POSWorkspace/KPos/lib/evo-inflector-1.2.jar"/>
 	<classpathentry kind="lib" path="F:/POSWorkspace/KPos/lib/sqlite-jdbc-3.7.15-M1.jar"/>
+	<classpathentry kind="lib" path="F:/POSWorkspace/KPos/lib/swingx-all-1.6.4.jar"/>
+	<classpathentry kind="lib" path="F:/POSWorkspace/KPos/lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="F:/POSWorkspace/KPos/lib/javalite-common-1.4.9.jar"/>
+	<classpathentry kind="lib" path="F:/POSWorkspace/KPos/lib/evo-inflector-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

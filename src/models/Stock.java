@@ -126,6 +126,31 @@ public class Stock {
 		return Sale.where("stock_id", stockId);		
 	}
 	
+	public static int quantitySold(String id) {
+		int total = 0;
+		for(Map<String, String> sale : sales(id)) {
+			total += Integer.parseInt(sale.get("quantity"));
+		}
+		return total;
+	}
+
+	public static double amountSold(String id) {
+		double total = 0;
+		for(Map<String, String> sale : sales(id)) {
+			total += Double.parseDouble(sale.get("total_amount"));
+		}
+		return total;
+	}
+
+	public static double profit(String id) {
+		double profit = 0;
+		for(Map<String, String> sale : sales(id)) {
+			profit += Double.parseDouble((Integer.parseInt(sale.get("price")) - Integer.parseInt(find(id).get("buying_price")))
+					* Integer.parseInt(sale.get("quantity"))+"");
+		}
+		return profit;
+	}
+	
 	// Migrations
 	
 	public static void migrate() {

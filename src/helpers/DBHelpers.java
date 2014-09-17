@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.*;
 
 import org.atteo.evo.inflector.English;
+import org.javalite.http.Get;
+import org.javalite.http.Http;
 
 import models.*;
 
@@ -106,7 +108,7 @@ public class DBHelpers {
 //		Expense.delete("phone");
 //		Expense.deleteAll();
 //		System.out.println(Expense.where("product", "Personal Computers"));
-		DBController.runMigrations();
+//		DBController.runMigrations();
 //		System.out.println(h.recordExists("users", "id", "1", DBController.connect()));
 //		System.out.println(User.exists("first_name", "muaad"));;
 		
@@ -153,5 +155,9 @@ public class DBHelpers {
 //		System.out.println(u.className);
 //		Customer.deleteAll();
 //		CustomerTransaction.deleteAll();
+//		Get get = Http.get("http://41.242.2.154:3001/services_and_companies");
+//		System.out.println(get.text());
+//		System.out.println(Stock.profit("1"));
+		System.out.println(Stock.showAll());
 	}
 }

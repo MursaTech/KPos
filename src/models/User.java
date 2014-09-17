@@ -98,6 +98,10 @@ public class User {
 		return showAll().size();
 	}
 	
+	public static String fullName(String id) {
+		return find(id).get("first_name") + " " + find(id).get("last_name");
+	}
+	
 	// Associations
 	
 	public static List<Map<String, String>> expenseTransactions(String id) {

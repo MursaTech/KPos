@@ -209,7 +209,7 @@ public class MainWindow extends javax.swing.JFrame {
 //        );
         SalesPanel sp = new SalesPanel(controller);
         ExpensesPanel xp = new ExpensesPanel(controller);
-        SalesStatsPanel stPanel = new SalesStatsPanel();
+        SalesStatsPanel stPanel = new SalesStatsPanel(controller);
         im = new InventoryManagement(controller);
         cardPanel.add(sp.createSalesPanel(),"sales");
         cardPanel.add(xp.createExpensePanel(),"expense");

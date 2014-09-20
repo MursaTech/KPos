@@ -170,6 +170,7 @@ public class SetUp extends javax.swing.JFrame {
 				if(e.getActionCommand() == "Finish") {
 					System.out.println(params);
 					controller.destroySetUpScreen();
+					controller.initLoginScreen();
 					controller.displayLoginScreen();
 				}
 			}

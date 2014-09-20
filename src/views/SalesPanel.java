@@ -1001,6 +1001,7 @@ public class SalesPanel extends javax.swing.JFrame {
 		txtPaid.setText("");
 		lblShowBalance.setText("");
 		lblShowTotal.setText("");
+		paid = new StringBuffer();
 	}
 	
 	private void recordSale(String salesTransactionId) {
@@ -1027,85 +1028,86 @@ public class SalesPanel extends javax.swing.JFrame {
 		}
 		
 		try {
-			lblShowBalance.setText(balance + "");
-			if(total > 0) {
-				if (balance >= 0) {
-					record = new TreeMap<String, String>();
-					record.put("total_amount", String.valueOf(lblShowTotal.getText()));
-					record.put("amount_paid", txtPaid.getText());
-					record.put("balance", lblShowBalance.getText());
-					record.put("method_of_payment", "CASH");
-					record.put("discount", "0");
-					record.put("VAT", String.valueOf(vat));
-//					sale.put("payment_id", String.valueOf(grandTotal));
-					record.put("user_id", controller.currentUser.get("user_id"));
-					if (controller.isAdmin()) {
-						record.put("approved", "YES");
-					}
-					else {
-						record.put("approved", "NO");
-//						new Thread (controller, "").start();
-					}
-					salesTransactionId = SalesTransaction.create(record).get("id");
-					recordSale(salesTransactionId);
-					
-					total = 0;
-					ViewHelpers.clearJTable(tblModel);
-				}
-				else {
-					int choice = JOptionPane.showConfirmDialog(null, "You are still owed "+String.valueOf(balance).substring(1)+
-							" Kshs! Do you want to give it as discount?", "Discount", JOptionPane.YES_NO_OPTION);
-					if(choice == 0) {
-//						discount = balance * -1;
+			if(row.size() > 0) {
+				lblShowBalance.setText(balance + "");
+				if(total > 0) {
+					if (balance >= 0) {
 						record = new TreeMap<String, String>();
 						record.put("total_amount", String.valueOf(lblShowTotal.getText()));
 						record.put("amount_paid", txtPaid.getText());
 						record.put("balance", lblShowBalance.getText());
 						record.put("method_of_payment", "CASH");
-						record.put("discount", String.valueOf(balance * -1));
-//						sale.put("payment_id", String.valueOf(grandTotal));
+						record.put("discount", "0");
+						record.put("VAT", String.valueOf(vat));
+	//					sale.put("payment_id", String.valueOf(grandTotal));
 						record.put("user_id", controller.currentUser.get("user_id"));
 						if (controller.isAdmin()) {
 							record.put("approved", "YES");
 						}
 						else {
 							record.put("approved", "NO");
-							new Thread (controller, "").start();
+	//						new Thread (controller, "").start();
 						}
 						salesTransactionId = SalesTransaction.create(record).get("id");
 						recordSale(salesTransactionId);
 						
+						total = 0;
 						ViewHelpers.clearJTable(tblModel);
 					}
 					else {
-						Object[] options = { "Request for more money", "Cancel transaction", "Add to a postpaid account" };
-						int option = JOptionPane.showOptionDialog(null, "What do you want to do next?", "Now... What next?",
-						JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
-						null, options, options[2]);
-						if(option == 0) {
-							txtPaid.setText("");
-							lblShowBalance.setText("");
-							txtPaid.requestFocus();
-						}
-						else if(option == 1) {
-							cancelTransaction();
+						int choice = JOptionPane.showConfirmDialog(null, "You are still owed "+String.valueOf(balance).substring(1)+
+								" Kshs! Do you want to give it as discount?", "Discount", JOptionPane.YES_NO_OPTION);
+						if(choice == 0) {
+	//						discount = balance * -1;
+							record = new TreeMap<String, String>();
+							record.put("total_amount", String.valueOf(lblShowTotal.getText()));
+							record.put("amount_paid", txtPaid.getText());
+							record.put("balance", lblShowBalance.getText());
+							record.put("method_of_payment", "CASH");
+							record.put("discount", String.valueOf(balance * -1));
+	//						sale.put("payment_id", String.valueOf(grandTotal));
+							record.put("user_id", controller.currentUser.get("user_id"));
+							if (controller.isAdmin()) {
+								record.put("approved", "YES");
+							}
+							else {
+								record.put("approved", "NO");
+								new Thread (controller, "").start();
+							}
+							salesTransactionId = SalesTransaction.create(record).get("id");
+							recordSale(salesTransactionId);
+							
+							ViewHelpers.clearJTable(tblModel);
 						}
 						else {
-//							PostPaidDialog post = new PostPaidDialog(controller);
-							post.createGUI();
-//							post.txtBalance.setText("scvdbfng");
+							Object[] options = { "Request for more money", "Cancel transaction", "Add to a postpaid account" };
+							int option = JOptionPane.showOptionDialog(null, "What do you want to do next?", "Now... What next?",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+							null, options, options[2]);
+							if(option == 0) {
+								txtPaid.setText("");
+								lblShowBalance.setText("");
+								txtPaid.requestFocus();
+							}
+							else if(option == 1) {
+								cancelTransaction();
+							}
+							else {
+	//							PostPaidDialog post = new PostPaidDialog(controller);
+								post.createGUI();
+	//							post.txtBalance.setText("scvdbfng");
+							}
 						}
 					}
 				}
+				else {
+					txtPaid.setText("");
+					lblShowBalance.setText("");
+					JOptionPane.showMessageDialog(null, "You haven't sold anything yet.", "Not allowed", JOptionPane.ERROR_MESSAGE);
+				}
+				paid = new StringBuffer();
+				row.clear();
 			}
-			else {
-				txtPaid.setText("");
-				lblShowBalance.setText("");
-				JOptionPane.showMessageDialog(null, "You haven't sold anything yet.", "Not allowed", JOptionPane.ERROR_MESSAGE);
-			}
-			System.out.println(paid);
-			paid = new StringBuffer();
-			System.out.println(paid);
 		}
 		catch(NumberFormatException n) {
 			JOptionPane.showMessageDialog(null, "Input amount paid first!");

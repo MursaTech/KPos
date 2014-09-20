@@ -61,8 +61,8 @@ public class MainWindow extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setExtendedState(4);
-        setResizable(false);
+//        setExtendedState(4);
+//        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(153, 204, 255));
         jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 3, true));
@@ -70,7 +70,7 @@ public class MainWindow extends javax.swing.JFrame {
         toolsPanel.setBackground(new java.awt.Color(204, 204, 255));
         toolsPanel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 255), 1, true));
 
-        salesButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\sale.PNG")); // NOI18N
+        salesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/sale.PNG"))); // NOI18N
         salesButton.setText("jButton1");
         salesButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 1, true));
         salesButton.addActionListener(new ActionListener() {
@@ -81,7 +81,7 @@ public class MainWindow extends javax.swing.JFrame {
 			}
 		});
 
-        expensesButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\expenses.PNG")); // NOI18N
+        expensesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/expenses.PNG"))); // NOI18N
         expensesButton.setText("jButton1");
         expensesButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 1, true));
         expensesButton.addActionListener(new ActionListener() {
@@ -92,7 +92,7 @@ public class MainWindow extends javax.swing.JFrame {
 			}
 		});
 
-        statsButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\stats.PNG")); // NOI18N
+        statsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/stats.PNG"))); // NOI18N
         statsButton.setText("jButton1");
         statsButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 1, true));
         statsButton.addActionListener(new ActionListener() {
@@ -103,7 +103,7 @@ public class MainWindow extends javax.swing.JFrame {
 			}
 		});
 
-        inventoryButton.setIcon(new javax.swing.ImageIcon("F:\\POSWorkspace\\POS\\inventory.PNG")); // NOI18N
+        inventoryButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/inventory.PNG"))); // NOI18N
         inventoryButton.setText("jButton1");
         inventoryButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 1, true));
         inventoryButton.addActionListener(new java.awt.event.ActionListener() {
@@ -112,7 +112,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        settingsButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\Muaad\\Desktop\\settings.png")); // NOI18N
+        settingsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/settings.png"))); // NOI18N
         settingsButton.setText("jButton1");
         settingsButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 51, 51), 1, true));
 

@@ -36,6 +36,7 @@ public class ClientController implements Runnable {
 	public Map<String, String> currentUser = new HashMap<String, String>();
 
 	public ClientController(DBController db) {
+		DBController.runMigrations();
 		initMainScreen();
 //		displayMainScreen();
 //		this.db = db;
@@ -122,7 +123,7 @@ public class ClientController implements Runnable {
         /* Create and display the form */
 		mainWindow = new MainWindow(this);
 		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		mainWindow.setResizable(false);
+//		mainWindow.setResizable(false);
 	}
 
 	public void hideMainScreen() {
@@ -133,7 +134,7 @@ public class ClientController implements Runnable {
 		mainWindow.dispose();
 	}
 
-	private void initLoginScreen() {
+	public void initLoginScreen() {
 		loginScreen = new Login(this);
 	}
 	

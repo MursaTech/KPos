@@ -483,7 +483,7 @@ public class MursalSales {
     
     CalculatorApplet calc = new CalculatorApplet();
     StatsPanel stPanel = new StatsPanel();
-    SalesStatsPanel ssPanel = new SalesStatsPanel();
+    StatsPanel ssPanel = new StatsPanel();
     ViewPanel vPanel = new ViewPanel();
     SetUpProject setUp = new SetUpProject();
     InventoryManagement im = new InventoryManagement();

@@ -12,42 +12,45 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Muaad
  */
-public class TransactionStats extends javax.swing.JFrame {
+public class AllExpensesPanel extends javax.swing.JFrame {
 
     DefaultTableModel tblModel = new DefaultTableModel();
-    String total = "Total for the selected period: Kshs. ";
-    public TransactionStats() {
-        createTransactionPanel();
+    String total = "Total Expenses for the selected period: ";
+    public AllExpensesPanel() {
+        createPanel();
     }
 
-    void createTransactionPanel() {
+    void createPanel() {
 
-        transactionStatsPanel = new javax.swing.JPanel();
+        itemStatsPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblTransaction = new javax.swing.JTable(tblModel);
+        tblItems = new javax.swing.JTable(tblModel);
         lblTotal = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        transactionStatsPanel.setBackground(new java.awt.Color(0, 51, 102));
+        itemStatsPanel.setBackground(new java.awt.Color(0, 51, 102));
 
         jScrollPane1.setBackground(new java.awt.Color(0, 51, 102));
 
-        tblTransaction.setBackground(new java.awt.Color(153, 204, 255));
-        //tblTransaction.setFillsViewportHeight(true);
-        //tblTransaction.setShowGrid(true);
-        tblTransaction.setRowSelectionAllowed(true);
-        tblTransaction.setAutoCreateRowSorter(true);
+        tblItems.setBackground(new java.awt.Color(153, 204, 255));
+        //tblItems.setFillsViewportHeight(true);
+        //tblItems.setShowGrid(true);
+        tblItems.setRowSelectionAllowed(true);
+        tblItems.setAutoCreateRowSorter(true);
         
-        jScrollPane1.setViewportView(tblTransaction);
+        jScrollPane1.setViewportView(tblItems);
 
         lblTotal.setFont(new java.awt.Font("Tahoma", 1, 12));
         lblTotal.setForeground(Color.white);
         lblTotal.setText(total);
         //lblTotal.setOpaque(true);
+        
+        tblModel.addColumn("Reason");
+        tblModel.addColumn("Total Amount");
 
-        javax.swing.GroupLayout transactiionStatsPanelLayout = new javax.swing.GroupLayout(transactionStatsPanel);
-        transactionStatsPanel.setLayout(transactiionStatsPanelLayout);
+        javax.swing.GroupLayout transactiionStatsPanelLayout = new javax.swing.GroupLayout(itemStatsPanel);
+        itemStatsPanel.setLayout(transactiionStatsPanelLayout);
         transactiionStatsPanelLayout.setHorizontalGroup(
             transactiionStatsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(transactiionStatsPanelLayout.createSequentialGroup()
@@ -75,14 +78,14 @@ public class TransactionStats extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(transactionStatsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(itemStatsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(transactionStatsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(itemStatsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -106,27 +109,27 @@ public class TransactionStats extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TransactionStats.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AllExpensesPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TransactionStats.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AllExpensesPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TransactionStats.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AllExpensesPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TransactionStats.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AllExpensesPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TransactionStats().setVisible(true);
+                new AllExpensesPanel().setVisible(true);
             }
         });
     }
     // Variables declaration - do not modify
     javax.swing.JLabel lblTotal;
     javax.swing.JScrollPane jScrollPane1;
-    javax.swing.JTable tblTransaction;
-    javax.swing.JPanel transactionStatsPanel;
+    javax.swing.JTable tblItems;
+    javax.swing.JPanel itemStatsPanel;
     // End of variables declaration
 }

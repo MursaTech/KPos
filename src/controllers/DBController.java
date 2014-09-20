@@ -131,20 +131,23 @@ public class DBController {
 
 	public boolean recordExists(String table, String field, String value) {
 		boolean exists = false;
+		String query = "select "+ field +" from " + table + " where " + field + " = '" + value + "'";
 		try {
-			rst = connect().createStatement().executeQuery("select "+ field +" from " + table + " where " + field + " = '" + value + "'");
+			rst = connect().createStatement().executeQuery(query);
 			exists = rst.first();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println(query);
 		return exists;
 	}
 
 	public List<TreeMap<String, String>> index(String table) {
 		List<TreeMap<String, String>> all = new ArrayList<TreeMap<String, String>>();
 		TreeMap<String, String> record;
+		String query = "select * from " + table;
 		try {
-			rst = connect().createStatement().executeQuery("select * from " + table );
+			rst = connect().createStatement().executeQuery(query);
 			rmd = rst.getMetaData();
 			int n = 1;
 			while (rst.next()) {
@@ -156,14 +159,16 @@ public class DBController {
 				all.add(record);
 			}
 		} catch (SQLException e) {}
+		System.out.println(query);
 		return all;
 	}
 	
 	public List<Map<String, String>> conditionalSelect(String table, String field, String value) {
 		List<Map<String, String>> all = new ArrayList<Map<String, String>>();
 		Map<String, String> record;
+		String query = "select * from " +table +" where " + field + " = '" + value + "'";
 		try {
-			rst = connect().createStatement().executeQuery("select * from " +table +" where " + field + " = '" + value + "'");
+			rst = connect().createStatement().executeQuery(query);
 			rmd = rst.getMetaData();
 			
 			while (rst.next()) {
@@ -174,14 +179,16 @@ public class DBController {
 				all.add(record);
 			}
 		} catch (SQLException e) {}
+//		System.out.println(query);
 		return all;
 	}
 	
 	public List<Map<String, String>> conditionalSelect(String table, String conditions) {
 		List<Map<String, String>> all = new ArrayList<Map<String, String>>();
 		Map<String, String> record;
+		String query = "select * from " + table + " where " + conditions;
 		try {
-			rst = connect().createStatement().executeQuery("select * from " + table + " where " + conditions);
+			rst = connect().createStatement().executeQuery(query);
 			rmd = rst.getMetaData();
 			
 			while (rst.next()) {
@@ -192,13 +199,15 @@ public class DBController {
 				all.add(record);
 			}
 		} catch (SQLException e) {}
+		System.out.println(query);
 		return all;
 	}
 
 	public Map<String, String> show(String table, String id) {
 		Map<String, String> record = new HashMap<String, String>();
+		String query = "select * from " + table + " where id = '"+ id + "'";
 		try {
-			rst = connect().createStatement().executeQuery("select * from " + table + " where id = '"+ id + "'");
+			rst = connect().createStatement().executeQuery(query);
 			rmd = rst.getMetaData();
 			
 			while (rst.next()) {
@@ -207,6 +216,7 @@ public class DBController {
 				}
 			}
 		} catch (SQLException e) {}
+		System.out.println(query);
 		return record;
 	}
 
@@ -227,24 +237,29 @@ public class DBController {
 			}
 			psmt.executeUpdate();
 		} catch (SQLException e1) {e1.printStackTrace();}
+		System.out.println(query);
 		return true;
 	}
 
 	public boolean delete(String table, String id) {
+		String query = "delete from " + table + " where id = ?";
 		try {
-			psmt = connect().prepareStatement("delete from " + table + " where id = ?");
+			psmt = connect().prepareStatement(query);
 			psmt.setString(1, id);
 			psmt.executeUpdate();
 		} catch (SQLException e) {}
+		System.out.println(query);
 		return false;
 	}
 
 	public boolean deleteWhere(String table, String field, String value) {
+		String query = "delete from " + table + " where " + field + "= ?";
 		try {
-			psmt = connect().prepareStatement("delete from " + table + " where " + field + "= ?");
+			psmt = connect().prepareStatement(query);
 			psmt.setString(1, value);
 			psmt.executeUpdate();
 		} catch (SQLException e) {}
+		System.out.println(query);
 		return false;
 	}
 
@@ -284,6 +299,7 @@ public class DBController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println(query);
 		return show(table, id);
 	}
 	
@@ -297,7 +313,7 @@ public class DBController {
 		} catch (SQLException e) {
 //			e.printStackTrace();
 		}
-//		System.out.println(query);
+		System.out.println(query);
 	}
 	
 }

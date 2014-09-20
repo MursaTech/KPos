@@ -90,6 +90,14 @@ public class Category {
 		return Expense.where("category_id", categoryId);		
 	}
 	
+	public static double totalExpenses(String id) {
+		double total = 0;
+		for(Map<String, String> record : expenses(id)) {
+			total += Double.parseDouble(record.get("amount"));
+		}
+		return total;
+	}
+	
 	public static List<Map<String, String>> subCategories(String categoryId) {
 		return SubCategory.where("category_id", categoryId);		
 	}

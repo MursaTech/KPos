@@ -76,7 +76,13 @@ public class Stock {
 
 
 	public static List<TreeMap<String, String>> showAll() {
-		return controller.index("stocks");		
+		List<TreeMap<String, String>> records = controller.index("stocks");
+//		for(TreeMap<String, String> record : records) {
+//			record.put("quantity_sold", String.valueOf(quantitySold(record.get("id"))));
+//			record.put("amount_sold", String.valueOf(amountSold(record.get("id"))));
+//			record.put("profit", String.valueOf(profit(record.get("id"))));
+//		}
+		return records;		
 	}
 
 	public static boolean update(Map<String, String> params, Map<String, String> conditions) {

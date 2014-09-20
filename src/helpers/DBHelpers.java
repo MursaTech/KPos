@@ -158,6 +158,6 @@ public class DBHelpers {
 //		Get get = Http.get("http://41.242.2.154:3001/services_and_companies");
 //		System.out.println(get.text());
 //		System.out.println(Stock.profit("1"));
-		System.out.println(Stock.showAll());
+		System.out.println(Expense.showAll());
 	}
 }

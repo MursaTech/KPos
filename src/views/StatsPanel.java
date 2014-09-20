@@ -1,278 +1,542 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package views;
 
-import org.jdesktop.layout.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
+import helpers.ViewHelpers;
+
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
+
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+
+import models.Category;
+import models.ExpenseTransaction;
+import models.Sale;
+import models.SalesTransaction;
+import models.Stock;
+import models.User;
+
+import com.toedter.calendar.JDateChooser;
+
+import controllers.ClientController;
 
 /**
  *
  * @author Muaad
  */
 public class StatsPanel extends JFrame {
-
-    /**
-     * Creates new form StatsPanel
-     */
-    /*public StatsPanel() {
-        createStatsPanel();
-    }*/
-    
-    //MursalSales ms = new MursalSales();
-    JPanel contentPane = new JPanel();
-    JPanel buttonContainer;
-    JButton inventoryButton;
-    JPanel jPanel2;
-    JPanel jPanel3;
-    JPanel jPanel4;
-    JPanel jPanel5;
-    JButton profitNLossButton;
-    JButton salesButton;
-    JPanel statsPanel;
-    JButton xpenseButton;
+	
+	TransactionStats ts = new TransactionStats();
+    StatsTablesPanel tables = new StatsTablesPanel();
+    ExpenseStatsPanel xpStats = new ExpenseStatsPanel();
+    EventHandler eHandler = new EventHandler();
+    CardLayout card = new CardLayout();
     List<String> columns = new LinkedList<String>();
+    List<String> itemColumns = new LinkedList<String>();
+    ClientController controller;
+    Vector<String> row;
+	List<Vector<String>> rows = new ArrayList<Vector<String>>();
+	TreeMap<String, String> record;
+	Map<String, String> params;
+    MursalDB db = new MursalDB();
+	
+    public StatsPanel(ClientController controller) {
+    	this.controller = controller;
+        createSalesStatsOverviewPanel();
+    }
     
-    public JPanel createStatsPanel() {
-
+    public JPanel createSalesStatsOverviewPanel() {
+    	
         statsPanel = new JPanel();
-        buttonContainer = new JPanel();
-        jPanel2 = new JPanel();
-        salesButton = new JButton();
         jPanel3 = new JPanel();
-        xpenseButton = new JButton();
-        jPanel4 = new JPanel();
-        inventoryButton = new JButton();
-        jPanel5 = new JPanel();
-        profitNLossButton = new JButton();
+        lblction = new JLabel();
+        comboAction = new JComboBox();
+        fromLbl = new JLabel();
+        fromCombo = new JDateChooser();
+        buttonSearch = new JButton();
+        toLbl = new JLabel();
+        toCombo = new JDateChooser();
+        salesStatsPanel = new JPanel();
+        salesOverviewPanel = new JPanel();
+        lblOverview = new JLabel();
+        lblSummary = new JLabel();
+        
+        lblSummary.setText("<html><body><table width=\"1000\" height=100% border=\"0\">"+
+				"<tr valign=\"top\">"+
+				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
+				"<b>Total Sales</b>" +
+				"<td style=\"background-color:#eeeeee;height:90px;width:500px;text-align:top;\">"+
+				"<ul><li>Today - <b> Kshs. "+SalesTransaction.total()+"</b></li><li>Yesterday -<b> Kshs. db.yesterdaySalesTotal"+
+				"</b></li><li>This week -<b> Kshs. db.weekSalesTotal</b></li>" +
+						"<li>This month -<b> Kshs. db.monthSalesTotal</b></li>" +
+						"<li>This Year -<b> Kshs. db.yearSalesTotal</b></li><li>From the begining of time -<b> Kshs. "+SalesTransaction.total()+
+						"</b></li></ul></td></tr>" +
+				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
+				"<b>Items Sold</b>" +
+				"<td style=\"background-color:#eeeeee;height:90px;width:500px;text-align:top;\">"+
+				"<ul><li>Most Popular -<b> db.top1, db.top2, db.top3</b></li><li>Least Popular --<b> db.bottom1, db.bottom2, "+
+				"db.bottom3</b></li><li>Most Valuable -<b> db.mostValuable1, db.mostValuable2, db.mostValuable3</b></li>" +
+						"<li>Least Valuable -<b> db.leastValuable1, db.leastValuable2, db.leastValuable3</b></li></ul></td></tr>"+
+				"<td style=\"background-color:#eeeeee;width:30px;text-align:top;\">"+
+				"<b>Time</b>" +
+				"<td style=\"background-color:#eeeeee;height:100px;width:500px;text-align:top;\">"+
+				"<ul><li>Peak times -</li><li>Down Times -</li><li>Busiest days -</li><li>Least Busy Days -</li></ul></td></tr>"+
+				"</table></body></html>");
+        
+        ts.createTransactionPanel();
+        tables.createPanel();
+        
+        
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        //setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        statsPanel.setBackground(new java.awt.Color(153, 204, 255));
 
-        statsPanel.setBackground(new Color(0, 51, 102));
+        jPanel3.setBackground(new java.awt.Color(0, 51, 102));
+        jPanel3.setBorder(new LineBorder(new java.awt.Color(153, 153, 255), 1, true));
 
-        buttonContainer.setBackground(new Color(153, 204, 255));
-        buttonContainer.setBorder(new LineBorder(new Color(51, 255, 51), 3, true));
+        lblction.setBackground(new java.awt.Color(153, 153, 255));
+        lblction.setFont(new java.awt.Font("Tahoma", 1, 14));
+        lblction.setForeground(new java.awt.Color(0, 0, 204));
+        lblction.setText("Select Action");
+        lblction.setBorder(new LineBorder(new java.awt.Color(102, 102, 255), 2, true));
+        lblction.setFocusable(false);
+        lblction.setOpaque(true);
 
-        jPanel2.setBorder(BorderFactory.createTitledBorder(null, "Sales Figures", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Arial", 1, 12)));
-        jPanel2.setOpaque(false);
+        comboAction.setBackground(new java.awt.Color(153, 153, 255));
+        comboAction.setModel(new DefaultComboBoxModel(new String[] { "Summary", "Transactions", "Individual items sold", "Expenses" }));
+        comboAction.addActionListener(eHandler);
 
-        salesButton.setBackground(new Color(255, 153, 51));
-        salesButton.setFont(new Font("Tahoma", 1, 14));
-        salesButton.setIcon(new ImageIcon("F:\\POSWorkspace\\POS\\sale.PNG"));
-        salesButton.setToolTipText("Sales");
-        salesButton.setBorder(new LineBorder(new Color(255, 0, 102), 1, true));
-        salesButton.setFocusable(false);
-        salesButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        salesButton.setVerticalTextPosition(SwingConstants.BOTTOM);
-        //salesButton.addActionListener(ms.eHandler);
+        fromLbl.setBackground(new java.awt.Color(153, 153, 255));
+        fromLbl.setFont(new java.awt.Font("Tahoma", 1, 14));
+        fromLbl.setForeground(new java.awt.Color(0, 0, 204));
+        fromLbl.setText("For the period");
+        fromLbl.setBorder(new LineBorder(new java.awt.Color(102, 102, 255), 2, true));
+        fromLbl.setFocusable(false);
+        fromLbl.setOpaque(true);
 
-        org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(salesButton)
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(salesButton)
-                .addContainerGap())
-        );
+        fromCombo.setBackground(new java.awt.Color(0, 51, 102));
+//        fromCombo.setMaximumRowCount(5);
+//        fromCombo.addActionListener(eHandler);
+        //fromCombo.setEditable(true);
 
-        jPanel3.setBorder(BorderFactory.createTitledBorder(null, "Expense details", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Arial", 1, 12)));
-        jPanel3.setOpaque(false);
+        buttonSearch.setBackground(new java.awt.Color(255, 153, 51));
+        buttonSearch.setFont(new java.awt.Font("Tahoma", 1, 12));
+        buttonSearch.setText("Search");
+        buttonSearch.addActionListener(eHandler);
 
-        xpenseButton.setBackground(new Color(255, 153, 51));
-        xpenseButton.setFont(new Font("Tahoma", 1, 14));
-        xpenseButton.setIcon(new ImageIcon("F:\\POSWorkspace\\POS\\expenses.PNG"));
-        xpenseButton.setText("Expenses");
-        xpenseButton.setToolTipText("Expenses");
-        xpenseButton.setBorder(new LineBorder(new Color(255, 0, 102), 1, true));
-        xpenseButton.setFocusable(false);
-        xpenseButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        xpenseButton.setMaximumSize(new Dimension(211, 131));
-        xpenseButton.setMinimumSize(new Dimension(211, 131));
-        xpenseButton.setVerticalTextPosition(SwingConstants.BOTTOM);
-        //xpenseButton.addActionListener(ms.eHandler);
+        toLbl.setBackground(new java.awt.Color(153, 153, 255));
+        toLbl.setFont(new java.awt.Font("Tahoma", 1, 14));
+        toLbl.setForeground(new java.awt.Color(0, 0, 204));
+        toLbl.setText("To");
+        toLbl.setBorder(new LineBorder(new java.awt.Color(102, 102, 255), 2, true));
+        toLbl.setFocusable(false);
+        toLbl.setOpaque(true);
 
-        org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
+        toCombo.setBackground(new java.awt.Color(0, 51, 102));
+//        toCombo.setMaximumRowCount(5);
+//        toCombo.addActionListener(eHandler);
+        //toCombo.setEditable(true);
+
+        GroupLayout jPanel3Layout = new GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel3Layout.createSequentialGroup()
+            jPanel3Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(xpenseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 207, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(lblction, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(comboAction, GroupLayout.PREFERRED_SIZE, 147, GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(fromLbl)
+                .addGap(18, 18, 18)
+                .addComponent(fromCombo, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(toLbl, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addComponent(toCombo, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(buttonSearch, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(58, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(xpenseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 130, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        jPanel4.setBorder(BorderFactory.createTitledBorder(null, "Inventory Levels", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Arial", 1, 12)));
-        jPanel4.setOpaque(false);
-
-        inventoryButton.setBackground(new Color(255, 153, 51));
-        inventoryButton.setFont(new Font("Tahoma", 1, 14));
-        inventoryButton.setIcon(new ImageIcon("F:\\POSWorkspace\\POS\\inventory.PNG"));
-        inventoryButton.setText("Inventory Management");
-        inventoryButton.setToolTipText("Inventory Management");
-        inventoryButton.setBorder(new LineBorder(new Color(255, 0, 102), 1, true));
-        inventoryButton.setFocusable(false);
-        inventoryButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        inventoryButton.setVerticalTextPosition(SwingConstants.BOTTOM);
-        //inventoryButton.addActionListener(ms.eHandler);
-
-        org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel4Layout.createSequentialGroup()
+            jPanel3Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(inventoryButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 209, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(inventoryButton)
+                .addGroup(jPanel3Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblction)
+                    .addComponent(comboAction, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(toLbl)
+                        .addComponent(toCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel3Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(fromLbl)
+                            .addComponent(fromCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(buttonSearch)))
                 .addContainerGap())
         );
 
-        jPanel5.setBorder(BorderFactory.createTitledBorder(null, "Profit, Loss and Other Stats", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Arial", 1, 12)));
-        jPanel5.setOpaque(false);
+        salesStatsPanel.setBackground(new java.awt.Color(0, 51, 102));
+        salesStatsPanel.setBorder(new LineBorder(new java.awt.Color(153, 153, 255), 1, true));
 
-        profitNLossButton.setIcon(new ImageIcon("F:\\POSWorkspace\\POS\\pnl.PNG"));
-        profitNLossButton.setText("Profit & Loss");
-        profitNLossButton.setToolTipText("Profit & Loss");
-        //profitNLossButton.addActionListener(ms.eHandler);
+        salesOverviewPanel.setBackground(new java.awt.Color(153, 204, 255));
+        salesOverviewPanel.setBorder(new LineBorder(new java.awt.Color(0, 51, 102), 9));
+
+        lblOverview.setFont(new java.awt.Font("Tahoma", 1, 12));
+        lblOverview.setText("Sales Overview");
+
+        lblSummary.setVerticalAlignment(SwingConstants.TOP);
+        lblSummary.setBorder(new LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         
-        columns.add("Transaction ID");
+        GroupLayout salesOverviewPanelLayout = new GroupLayout(salesOverviewPanel);
+        salesOverviewPanel.setLayout(salesOverviewPanelLayout);
+        salesOverviewPanelLayout.setHorizontalGroup(
+            salesOverviewPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(salesOverviewPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(salesOverviewPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    .addComponent(lblSummary, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(salesOverviewPanelLayout.createSequentialGroup()
+                        .addComponent(lblOverview, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        salesOverviewPanelLayout.setVerticalGroup(
+            salesOverviewPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(salesOverviewPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblOverview, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblSummary, GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        /*GroupLayout salesStatsPanelLayout = new GroupLayout(salesStatsPanel);
+        salesStatsPanel.setLayout(salesStatsPanelLayout);
+        salesStatsPanelLayout.setHorizontalGroup(
+            salesStatsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(salesStatsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(salesOverviewPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        salesStatsPanelLayout.setVerticalGroup(
+            salesStatsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(salesStatsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(salesOverviewPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );*/
+        
+//        columns.add("Transaction ID");
         columns.add("Total Amount");
         columns.add("Amount Paid");
         columns.add("Balance");
-        columns.add("Time");
+        columns.add("VAT");
         columns.add("Discount");
+        columns.add("Approved");
+        columns.add("Authorized By");
+        columns.add("Time");
+        
+        salesStatsPanel.setLayout(new CardLayout());
+        salesStatsPanel.add(salesOverviewPanel, "summary");
+        salesStatsPanel.add(tables.itemStatsPanel, "items");
+        salesStatsPanel.add(xpStats.itemStatsPanel, "expenses");
+        salesStatsPanel.add(ts.transactionStatsPanel, "transaction");
 
-        org.jdesktop.layout.GroupLayout jPanel5Layout = new org.jdesktop.layout.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(profitNLossButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 207, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(profitNLossButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        org.jdesktop.layout.GroupLayout buttonContainerLayout = new org.jdesktop.layout.GroupLayout(buttonContainer);
-        buttonContainer.setLayout(buttonContainerLayout);
-        buttonContainerLayout.setHorizontalGroup(
-            buttonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(buttonContainerLayout.createSequentialGroup()
-                .add(63, 63, 63)
-                .add(buttonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jPanel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 136, Short.MAX_VALUE)
-                .add(buttonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jPanel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .add(98, 98, 98))
-        );
-        buttonContainerLayout.setVerticalGroup(
-            buttonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(buttonContainerLayout.createSequentialGroup()
-                .add(24, 24, 24)
-                .add(buttonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 35, Short.MAX_VALUE)
-                .add(buttonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jPanel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jPanel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .add(30, 30, 30))
-        );
-
-        org.jdesktop.layout.GroupLayout statsPanelLayout = new org.jdesktop.layout.GroupLayout(statsPanel);
+        GroupLayout statsPanelLayout = new GroupLayout(statsPanel);
         statsPanel.setLayout(statsPanelLayout);
         statsPanelLayout.setHorizontalGroup(
-            statsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(statsPanelLayout.createSequentialGroup()
-                .add(42, 42, 42)
-                .add(buttonContainer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(49, Short.MAX_VALUE))
+            statsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(statsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(statsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(salesStatsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         statsPanelLayout.setVerticalGroup(
-            statsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(statsPanelLayout.createSequentialGroup()
-                .add(22, 22, 22)
-                .add(buttonContainer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
+            statsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addGroup(statsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(salesStatsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(contentPane);
-        contentPane.setLayout(layout);
+        GroupLayout layout = new GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(statsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addComponent(statsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(statsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addComponent(statsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-		return statsPanel;
 
-        //pack();
+        pack();
+		return statsPanel;
     }
     
-    public static void main(String args[]) {
-        try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(StatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(StatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(StatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(StatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-               // new StatsPanel().setVisible(true);
-            }
-        });
+    String user, pass;
+    
+    class EventHandler implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == comboAction) {
+
+				if(comboAction.getSelectedItem().equals("Summary")) {
+					swithToSummary(card, salesStatsPanel);
+					columns.clear();
+				}
+				
+				if(comboAction.getSelectedItem().equals("Transactions")) {
+					swithToTransaction(card, salesStatsPanel);
+					for (int i = 0; i < columns.size(); i++) {
+						ts.tblModel.addColumn(columns.get(i));
+						if (i == ((columns.size() - 1) / 2)) {
+							columns.clear();
+						}
+					}
+					loadTransactions();
+				}
+				
+				if(comboAction.getSelectedItem().equals("Individual items sold")) {
+					swithToItems(card, salesStatsPanel);
+					columns.add("Item Name");
+			        columns.add("Number Sold");
+			        columns.add("Total Amount (Kshs)");
+			        columns.add("Profit Generated");
+			        setUpTables(columns);
+					loadItemsTable();
+				}
+				
+				if (comboAction.getSelectedItem().equals("Expenses")) {
+//					columns.add("Reason");
+//					columns.add("Amount");
+//					setUpTables(columns);
+					ViewHelpers.switchPanels(card, salesStatsPanel, "expenses");
+					loadExpenseTransactions();
+				}
+			}
+			
+			if(e.getSource() == buttonSearch) {
+				if (comboAction.getSelectedItem().equals("Transactions")) {
+					loadVariableTransaction();
+					db.listDates.clear();
+				}
+				if(comboAction.getSelectedItem().equals("Individual items sold")) {
+					loadVariableItems();
+				}
+			}
+		}
+    	
     }
+    
+    private void setUpTables(List<String> list) {
+		for (int i = 0; i < tables.tblModel.getRowCount(); i++) {
+			tables.tblModel.removeRow(i);
+		}
+		tables.tblModel.setColumnCount(0);
+		for (int i = 0; i < list.size(); i++) {
+			tables.tblModel.addColumn(list.get(i));
+		}
+    	list.clear();
+	}
+    void loadTransactions() {
+		for (int i = ts.tblModel.getRowCount() - 1; i >= 0; i--) {
+			ts.tblModel.removeRow(i);
+		}
+		
+		for(TreeMap<String, String> record : SalesTransaction.showAll()) {
+			row = new Vector<String>();
+//			row.add(record.get("id"));
+			row.add(record.get("total_amount"));
+			row.add(record.get("amount_paid"));
+			row.add(record.get("balance"));
+			row.add(record.get("VAT"));
+			row.add(record.get("discount"));
+			row.add(record.get("approved"));
+			row.add(User.fullName(record.get("user_id")));
+			row.add(record.get("created_at"));
+			
+			ts.tblModel.addRow(row);
+		}
+		ts.lblTotal.setText(ts.total + SalesTransaction.total());
+    }
+    
+    void loadExpenseTransactions() {
+    	double total = 0;
+//		for (int i = ts.tblModel.getRowCount() - 1; i >= 0; i--) {
+//			ts.tblModel.removeRow(i);
+//		}
+		
+		for(TreeMap<String, String> record : Category.showAll()) {
+			System.out.println(record);
+			row = new Vector<String>();
+			row.add(record.get("name"));
+			row.add(Category.totalExpenses(record.get("id"))+"");
+			
+			xpStats.tblModel.addRow(row);
+		}
+		
+//		for (int i = 0; i < tables.tblModel.getRowCount(); i++) {
+//			total += Integer.parseInt(tables.tblItems.getValueAt(i, 1).toString());
+//		}
+//		tables.lblTotal.setText("Total expenses for selected period: " + total);
+    }
+    
+    void loadVariableTransaction() {
+    	try {
+    		for (int i = ts.tblModel.getRowCount() - 1; i >= 0; i--) {
+    			ts.tblModel.removeRow(i);
+    		}
+			db.user = user;
+			db.pass = pass;
+			db.connect();
+//			db.fromDate = fromCombo.getSelectedItem().toString();
+//			db.toDate = toCombo.getSelectedItem().toString();
+			db.loadVariableTransactionTable();
+			//System.out.println(db.fromDate+ " "+ db.toDate);
+			for (int i = 0; i < db.listOfVectorsVarTrans.size(); i++) {
+				ts.tblModel.addRow(db.listOfVectorsVarTrans.get(i));
+			}
+			ts.lblTotal.setText(ts.total + db.totalForPeriod);
+			db.totalForPeriod = 0;
+			db.listOfVectorsVarTrans.clear();
+		} /*catch(IllegalArgumentException ie) {
+			JOptionPane.showMessageDialog(null, "No transactions recorded for "+ db.toDate, "Error", JOptionPane.ERROR_MESSAGE);			
+		}*/
+    	catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    }
+    
+    void loadItemsTable() {
+    	int total = 0;
+		for (int i = tables.tblModel.getRowCount() - 1; i >= 0; i--) {
+			tables.tblModel.removeRow(i);
+		}
+		
+		for(TreeMap<String, String> record : Stock.showAll()) {
+			row = new Vector<String>();
+			row.add(record.get("name"));
+//			row.add(record.get("quantity_sold"));
+//			row.add(record.get("amount_solid"));
+//			row.add(record.get("profit"));
+			row.add(Stock.quantitySold(record.get("id")) + "");
+			row.add(Stock.amountSold(record.get("id")) + "");
+			row.add(Stock.profit(record.get("id")) + "");
+			
+			tables.tblModel.addRow(row);
+		}
+		for (int i = 0; i < tables.tblModel.getRowCount(); i++) {
+			total += Integer.parseInt(tables.tblItems.getValueAt(i, 1).toString());
+		}
+		tables.lblTotal.setText(tables.total + total);
+	}
+    
+    void loadVariableItems() {
+    	int total = 0;
+    	try {
+    		for (int i = tables.tblModel.getRowCount() - 1; i >= 0; i--) {
+    			tables.tblModel.removeRow(i);
+    		}
+			db.user = user;
+			db.pass = pass;
+			db.connect();
+//			db.fromDate = fromCombo.getSelectedItem().toString();
+//			db.toDate = toCombo.getSelectedItem().toString();
+			db.loadVariableItemsTable();
+			//System.out.println(db.fromDate+ " "+ db.toDate);
+			for (int i = 0; i < db.listOfVectorsItemsVar.size(); i++) {
+				tables.tblModel.addRow(db.listOfVectorsItemsVar.get(i));
+			}
+			for (int i = 0; i < db.listOfVectorsItemsVar.size(); i++) {
+				total = total + Integer.parseInt(db.listOfVectorsItemsVar.get(i).get(1));
+			}
+			tables.lblTotal.setText(tables.total + total);
+			total = 0;
+			db.listOfVectorsItemsVar.clear();
+		} 
+    	catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    }
+    
+    
+    void swithToSummary(CardLayout card, JPanel cardpanel) {
+		card = (CardLayout) cardpanel.getLayout();
+		card.show(cardpanel, "summary");
+	}
+    
+    void swithToTransaction(CardLayout card, JPanel cardpanel) {
+		card = (CardLayout) cardpanel.getLayout();
+		card.show(cardpanel, "transaction");
+	}
+    
+    void swithToItems(CardLayout card, JPanel cardpanel) {
+		card = (CardLayout) cardpanel.getLayout();
+		card.show(cardpanel, "items");
+	}
+    
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(SalesStatsPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new SalesStatsPanel(controllers).setVisible(true);
+//            }
+//        });
+//    }
+    // Variables declaration - do not modify
+    JButton buttonSearch;
+    JComboBox comboAction;
+    JDateChooser fromCombo;
+    JLabel fromLbl;
+    JLabel lblOverview;
+    JLabel lblSummary;
+    JPanel jPanel3;
+    JLabel lblction;
+    JPanel salesOverviewPanel;
+    JPanel salesStatsPanel;
+    JPanel statsPanel;
+    JDateChooser toCombo;
+    JLabel toLbl;
+    // End of variables declaration
 }
